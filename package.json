@@ -19,6 +19,8 @@
   "homepage": "https://github.com/dragonismcode/fxtiktok#readme",
   "dependencies": {
     "dotenv": "^16.0.3",
-    "express": "^4.18.2"
+    "ejs": "^3.1.8",
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.0"
   }
 }
