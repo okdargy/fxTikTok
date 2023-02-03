@@ -16,7 +16,7 @@ app.get('/t/:videoId', (req, res) => {
         .then(json => {
             if(json.status !== "failed") {
                 res.render('embed', {
-                    link: json.url,
+                    sharelink: json.url,
                     description: json.desc,
                     uid: json.author.unique_id,
                     name: json.author.nickname,
