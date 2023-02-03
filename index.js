@@ -20,6 +20,9 @@ app.get('/t/:videoId', (req, res) => {
                     description: json.desc,
                     uid: json.author.unique_id,
                     name: json.author.nickname,
+                    thumbnail: json.cover_data.cover.url_list[0],
+                    width: json.cover_data.cover.width,
+                    height: json.cover_data.cover.height,
                     videoUrl: json.video_data.nwm_video_url
                 })
             } else {
