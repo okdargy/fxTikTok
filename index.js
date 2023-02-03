@@ -3,6 +3,7 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 require('dotenv').config();
 
 const app = express();
+app.set('views', __dirname + '/pages');
 app.set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
@@ -14,7 +15,7 @@ app.get('/t/:videoId', (req, res) => {
         .then(res => res.json())
         .then(json => {
             if(json.status !== "failed") {
-                res.render('../pages/embed.ejs', {
+                res.render('embed', {
                     link: json.url,
                     description: json.desc,
                     uid: json.author.unique_id,
@@ -23,13 +24,13 @@ app.get('/t/:videoId', (req, res) => {
                 })
             } else {
                 console.log('req failed for: ' + req.params.videoId);
-                res.render('../pages/error.ejs');
+                res.render('error');
             }
         })
         .catch(err => {
             console.error(err);
 
-            res.render('../pages/error.ejs');
+            res.render('error');
         })
 })
 
