@@ -23,7 +23,7 @@ app.get('/t/:videoId', (req, res) => {
                     thumbnail: json.cover_data.cover.url_list[0],
                     width: json.cover_data.cover.width,
                     height: json.cover_data.cover.height,
-                    videoUrl: json.video_data.nwm_video_url
+                    videoUrl: json.video_data.nwm_video_url_HQ
                 })
             } else {
                 console.log('req failed for: ' + req.params.videoId);
