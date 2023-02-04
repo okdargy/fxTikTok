@@ -6,14 +6,16 @@
     <meta name="viewport" content="width=device-width initial-scale=1.0">
 
     <meta content="<%= name %> (@<%= uid %>)" property="og:title" />
-    <meta content="fxTikTok" property="og:site_name" />
-    <meta property="og:url" content="<%= sharelink %>">
     <meta content="#ff0050" name="theme-color" />
+    <meta content="fxTikTok" property="og:site_name" />
+    <meta property="og:type" content="video.episode" />
+    <meta property="og:description" content="<%= description %>" />
+    <meta property="og:video" content="<%= videoUrl %>">
     <meta property="og:video:width" content="<%= width %>">
     <meta property="og:video:height" content="<%= height %>">
     <meta property="og:video:type" content="video/mp4"/>
-    <meta property="og:video" content="<%= videoUrl %>">
-    <meta property="og:type" content="video.episode" />
+    <meta property="og:video:duration" content="300">
+    <meta property="og:url" content="<%= sharelink %>">
 </head>
 <title>fxTikTok</title>
 </head>
