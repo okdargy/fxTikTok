@@ -10,7 +10,15 @@ app.get('/', (req, res) => {
   res.redirect('https://github.com/dragonismcode/fxtiktok');
 });
 
+var BOT_REGEX = /bot|facebook|embed|got|firefox\/92|curl|wget|go-http|yahoo|generator|whatsapp|preview|link|proxy|vkshare|images|analyzer|index|crawl|spider|python|cfnetwork|node/gi
+
 app.get('/t/:videoId', (req, res) => {
+    if(!BOT_REGEX.test(req.headers['user-agent'])) {
+        console.log('redirecting to: ' + 'https://tiktok.com/t/' + req.params.videoId + ' because user agent is: ' + req.headers['user-agent'])
+        res.redirect('https://tiktok.com/t/' + req.params.videoId);
+        return;
+    }
+
     console.log('got request for video id: ' + req.params.videoId)
     var timeStart = Date.now();
     fetch('https://api.douyin.wtf/api?url=https://www.tiktok.com/t/' + req.params.videoId)
