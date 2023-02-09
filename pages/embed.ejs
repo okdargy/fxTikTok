@@ -26,6 +26,10 @@
     -->
     <meta http-equiv="refresh" content="0;url=<%= sharelink %>"/>
     <% } %>
+
+    <% if(hideStats !== true){ %>
+        <meta property="og:description" content="❤ <%= likes %> 💬 <%= comments %> 🔁 <%= shares %>"/>
+    <% } %>
   
     <meta property="og:video" content="<%= videoUrl %>" />
     <meta property="og:video:secure_url" content="<%= videoUrl %>"/>

@@ -34,7 +34,8 @@ app.get('/t/:videoId', (req, res) => {
                     width: "576",
                     height: "1024",
                     videoUrl: json.video_data.nwm_video_url_HQ,
-                    isTelegram: req.headers['user-agent'].includes('Telegram')
+                    isTelegram: req.headers['user-agent'].includes('Telegram'),
+                    hideStats: true
                 })
             } else {
                 console.log('req failed for: ' + req.params.videoId);
@@ -66,12 +67,16 @@ app.get('/@:username/video/:videoId', (req, res) => {
               sharelink: video.share_url,
               description: video.desc,
               uid: video.author.unique_id,
+              likes: video.statistics.digg_count,
+              comments: video.statistics.comment_count,
+              shares: video.statistics.share_count,
               name: video.author.nickname,
               thumbnail: video.video.cover.url_list[0],
               width: video.video.play_addr.width,
               height: video.video.play_addr.height,
               videoUrl: video.video.play_addr.url_list[0],
-              isTelegram: req.headers['user-agent'].includes('Telegram')
+              isTelegram: req.headers['user-agent'].includes('Telegram'),
+              hideStats: req.query.hideStats == "true"
           })
         } else {
           res.render('error');
