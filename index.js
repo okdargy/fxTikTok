@@ -6,12 +6,49 @@ const app = express();
 app.set('views', __dirname + '/pages');
 app.set('view engine', 'ejs');
 
+app.get("/:videoId", (req, res) => {
+  if(req.params.videoId.length == 9) return res.redirect("https://github.com/dragonismcode/fxtiktok");
+  
+    if(!BOT_REGEX.test(req.headers['user-agent'] || "")) {
+        console.log('redirecting to: ' + 'https://tiktok.com/t/' + req.params.videoId + ' because user agent is: ' + req.headers['user-agent'])
+        return res.redirect('https://tiktok.com/t/' + req.params.videoId);
+    }
+
+    var timeStart = Date.now();
+    fetch('https://api.douyin.wtf/api?url=https://www.tiktok.com/t/' + req.params.videoId)
+        .then(res => res.json())
+        .then(json => {
+            if(json.status !== "failed") {
+                console.log('rendering video embed for: ' + json.url)
+                res.render('embed', {
+                    sharelink: json.url,
+                    description: json.desc,
+                    uid: json.author.unique_id,
+                    name: json.author.nickname,
+                    thumbnail: json.cover_data.cover.url_list[0],
+                    width: "576",
+                    height: "1024",
+                    videoUrl: json.video_data.nwm_video_url_HQ,
+                    isTelegram: req.headers['user-agent'].includes('Telegram'),
+                    hideStats: true
+                })
+            } else {
+                console.log('req failed for: ' + req.params.videoId);
+                res.render('error');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+
+            res.render('error');
+        });
+});
+
 app.get('/', (req, res) => {
   res.redirect('https://github.com/dragonismcode/fxtiktok');
 });
 
 var BOT_REGEX = /bot|facebook|embed|got|firefox\/92|curl|wget|go-http|yahoo|generator|whatsapp|discord|preview|link|proxy|vkshare|images|analyzer|index|crawl|spider|python|cfnetwork|node/gi
-
 
 app.get('/t/:videoId', (req, res) => {
     if(!BOT_REGEX.test(req.headers['user-agent'] || "")) {
