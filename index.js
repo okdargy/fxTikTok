@@ -7,7 +7,7 @@ app.set('views', __dirname + '/pages');
 app.set('view engine', 'ejs');
 
 app.get("/:videoId", (req, res) => {
-  if(req.params.videoId.length == 9) return res.redirect("https://github.com/dragonismcode/fxtiktok");
+  if(req.params.videoId.length !== 9) return res.redirect("https://github.com/dragonismcode/fxtiktok");
   
     if(!BOT_REGEX.test(req.headers['user-agent'] || "")) {
         console.log('redirecting to: ' + 'https://tiktok.com/t/' + req.params.videoId + ' because user agent is: ' + req.headers['user-agent'])
