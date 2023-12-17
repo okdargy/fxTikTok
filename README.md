@@ -1,2 +1,8 @@
-# fxtiktok
-🔧 Fixing TikTok for Discord or Telegram embeds, WIP
+```
+npm install
+npm run dev
+```
+
+```
+npm run deploy
+```
