@@ -10,7 +10,6 @@
     "hono": "^3.11.7"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.1",
     "@cloudflare/workers-types": "^4.20230914.0",
     "wrangler": "^3.15.0"
   },

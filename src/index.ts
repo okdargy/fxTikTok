@@ -3,9 +3,10 @@ import { HandlerResponse } from 'hono/types'
 
 import { grabAwemeId, getVideoInfo } from './services/tiktok'
 import { VideoResponse } from './templates'
+import generateAlternate from './util/generateAlternate'
 
 const app = new Hono()
-const videoRoutes = [
+const routes = [
     {
         path: '/:videoId',
         handler: handleVideo
@@ -20,9 +21,16 @@ const videoRoutes = [
     }
 ]
 
-videoRoutes.forEach(route => {
-    app.get(route.path, route.handler)
-})
+routes.forEach(route => app.get(route.path, route.handler))
+
+const returnHTMLResponse = (content: string): HandlerResponse<Response> => {
+    return new Response(content, {
+        status: 200,
+        headers: {
+            'Content-Type': 'text/html; charset=utf-8'
+        }
+    })
+}
 
 async function handleVideo(c: any): Promise<Response> {
     const awemeIdPattern = /^\d{1,19}$/;
@@ -47,10 +55,20 @@ async function handleVideo(c: any): Promise<Response> {
         }
 
         const responseContent = await VideoResponse(videoInfo);
-        return new Response(responseContent, { status: 200 })
+        return returnHTMLResponse(responseContent) as Response;
     } catch(e) {
         return new Response((e as Error).message, { status: 500 })
     }
 }
+
+app.get('/tools/generateAlternate', (c) => {
+    const content = JSON.stringify(generateAlternate(c));
+    return new Response(content, {
+        status: 200,
+        headers: {
+            'Content-Type': 'application/json; charset=utf-8'
+        }
+    })
+})
 
 export default app

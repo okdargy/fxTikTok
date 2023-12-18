@@ -5,10 +5,6 @@ export function VideoResponse(data: AwemeList) {
     return (
         <>
             {MetaHelper([
-                { 
-                    name: 'og:site_name',
-                    content: data.desc // Description 
-                },
                 {
                     name: 'og:title',
                     content: `${data.author.nickname} (@${data.author.unique_id})` // Nickname (@username)
@@ -39,35 +35,11 @@ export function VideoResponse(data: AwemeList) {
                 },
                 {
                     name: 'og:description',
-                    content: `❤ ${data.statistics.digg_count} 💬 ${data.statistics.comment_count} 🔁 ${data.statistics.share_count}`
+                    content: data.desc
                 },
                 {
                     name: 'og:video',
                     content: data.video.play_addr.url_list[0]
-                },
-                {
-                    name: 'og:video:secure_url',
-                    content: data.video.play_addr.url_list[0]
-                },
-                {
-                    name: 'og:video:width',
-                    content: data.video.width.toString()
-                },
-                {
-                    name: 'og:video:height',
-                    content: data.video.height.toString()
-                },
-                {
-                    name: 'twitter:player:width',
-                    content: data.video.width.toString()
-                },
-                {
-                    name: 'twitter:player:height',
-                    content: data.video.height.toString()
-                },
-                {
-                    name: 'twitter:image',
-                    content: data.video.cover.url_list[0]
                 },
                 {
                     name: 'og:video:type',
@@ -76,8 +48,14 @@ export function VideoResponse(data: AwemeList) {
                 {
                     name: 'twitter:player:stream:content_type',
                     content: 'video/mp4'
-                }
-            ])}
+                },
+            ], {
+                likes: data.statistics.digg_count,
+                comments: data.statistics.comment_count,
+                shares: data.statistics.share_count,
+                unique_id: data.author.unique_id
+            })
+            }
         </>
     )
 }
