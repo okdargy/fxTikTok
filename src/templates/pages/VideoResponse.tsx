@@ -4,7 +4,8 @@ import MetaHelper from '../../util/MetaHelper';
 export function VideoResponse(data: AwemeList) {
     return (
         <>
-            {MetaHelper([
+            {
+            MetaHelper([
                 {
                     name: 'og:title',
                     content: `${data.author.nickname} (@${data.author.unique_id})` // Nickname (@username)
@@ -38,17 +39,17 @@ export function VideoResponse(data: AwemeList) {
                     content: data.desc
                 },
                 {
-                    name: 'og:video',
-                    content: data.video.play_addr.url_list[0]
+                    name: `og:${data.video.duration !== 0 ? 'video' : 'image'}`,
+                    content: `https://tnktok.com/generate/${data.video.duration !== 0 ? 'video' : 'image'}/` + data.aweme_id
                 },
                 {
-                    name: 'og:video:type',
-                    content: 'video/mp4'
+                    name: 'og:type',
+                    content: `video.${data.video.duration !== 0 ? 'video.other' : 'image.other'}`
                 },
                 {
-                    name: 'twitter:player:stream:content_type',
-                    content: 'video/mp4'
-                },
+                    name: `og:${data.video.duration !== 0 ? 'video' : 'image'}:type`,
+                    content: `${data.video.duration !== 0 ? 'video/mp4' : 'image/jpeg'}`
+                }
             ], {
                 likes: data.statistics.digg_count,
                 comments: data.statistics.comment_count,

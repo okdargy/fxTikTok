@@ -17,7 +17,7 @@ export default function MetaHelper(tags: {
                 ))}
                 {
                     alternate ? (
-                        <link rel="alternate" href={`https://fxtiktok-rewrite.dargy.workers.dev/tools/generateAlternate?likes=${alternate.likes}&comments=${alternate.comments}&shares=${alternate.shares}&unique_id=${encodeURIComponent(alternate.unique_id)}`} type="application/json+oembed" />
+                        <link rel="alternate" href={`https://fxtiktok-rewrite.dargy.workers.dev/generate/alternate?likes=${alternate.likes}&comments=${alternate.comments}&shares=${alternate.shares}&unique_id=${encodeURIComponent(alternate.unique_id)}`} type="application/json+oembed" />
                     ) : null
                 }
             </head>

@@ -6,22 +6,15 @@ import { VideoResponse } from './templates'
 import generateAlternate from './util/generateAlternate'
 
 const app = new Hono()
-const routes = [
-    {
-        path: '/:videoId',
-        handler: handleVideo
-    },
-    {
-        path: '/:username/video/:videoId',
-        handler: handleVideo
-    },
-    {
-        path: '/t/:videoId',
-        handler: handleVideo
-    }
-]
 
-routes.forEach(route => app.get(route.path, route.handler))
+app.get('/', (c) => {
+    return new Response('', {
+        status: 302,
+        headers: {
+            'Location': 'https://github.com/okdargy/fxtiktok'
+        }
+    })
+})
 
 const returnHTMLResponse = (content: string): HandlerResponse<Response> => {
     return new Response(content, {
@@ -34,8 +27,23 @@ const returnHTMLResponse = (content: string): HandlerResponse<Response> => {
 
 async function handleVideo(c: any): Promise<Response> {
     const awemeIdPattern = /^\d{1,19}$/;
+    const BOT_REGEX = /bot|facebook|embed|got|firefox\/92|curl|wget|go-http|yahoo|generator|whatsapp|discord|preview|link|proxy|vkshare|images|analyzer|index|crawl|spider|python|cfnetwork|node/gi
+
     const { videoId } = c.req.param()
     let id = videoId;
+
+    // If the request is not from a bot, redirect to the video
+    // TODO NOW: fix redirecting discord bot
+    /*
+    if (!BOT_REGEX.test(c.req.headers['user-agent'] || "")) {
+        return new Response('', {
+            status: 302,
+            headers: {
+                'Location': `https://www.tiktok.com/${c.req.path}}`
+            }
+        })
+    }
+    */
 
     // If the videoId needs to be validated, do it here
     if (!awemeIdPattern.test(videoId)) {
@@ -61,7 +69,23 @@ async function handleVideo(c: any): Promise<Response> {
     }
 }
 
-app.get('/tools/generateAlternate', (c) => {
+app.get('/test/:videoId', async (c) => {
+    const { videoId } = c.req.param()
+    const awemeId = await getVideoInfo(videoId)
+    
+    if(awemeId instanceof Error) {
+        return new Response((awemeId as Error).message, { status: 500 })
+    }
+
+    return new Response(JSON.stringify(awemeId), {
+        status: 200,
+        headers: {
+            'Content-Type': 'application/json; charset=utf-8'
+        }
+    })
+})
+
+app.get('/generate/alternate', (c) => {
     const content = JSON.stringify(generateAlternate(c));
     return new Response(content, {
         status: 200,
@@ -69,6 +93,57 @@ app.get('/tools/generateAlternate', (c) => {
             'Content-Type': 'application/json; charset=utf-8'
         }
     })
+})
+
+app.get('/generate/video/:videoId', async (c) => {
+    const { videoId } = c.req.param()
+    const data = await getVideoInfo(videoId);
+
+    if (data instanceof Error) {
+        return new Response((data as Error).message, { status: 500 })
+    }
+
+    if(data.video.play_addr.url_list.length > 0) {
+        return c.redirect(data.video.play_addr.url_list[0])
+    } else {
+        return new Response('No video found', { status: 404 })
+    }
+})
+
+app.get('/generate/image/:videoId', async (c) => {
+    const { videoId } = c.req.param()
+    const data = await getVideoInfo(videoId);
+
+    if (data instanceof Error) {
+        return new Response((data as Error).message, { status: 500 })
+    }
+
+    if(data.video.cover.url_list.length > 0) {
+        return c.redirect(data.video.cover.url_list[0])
+    } else {
+        return new Response(JSON.stringify(data), { status: 200 })
+    }
+})
+
+const routes = [
+    {
+        path: '/:videoId',
+        handler: handleVideo
+    },
+    {
+        path: '/:username/video/:videoId',
+        handler: handleVideo
+    },
+    {
+        path: '/t/:videoId',
+        handler: handleVideo
+    }
+]
+
+// temp-fix: add trailing slash to all routes
+routes.forEach(route => {
+    app.get(route.path, route.handler)
+    app.get(route.path + '/', route.handler)
 })
 
 export default app
