@@ -1,4 +1,5 @@
 import { Hono, Handler } from 'hono'
+import { cache } from 'hono/cache'
 import { HandlerResponse } from 'hono/types'
 
 import { grabAwemeId, getVideoInfo } from './services/tiktok'
@@ -6,6 +7,22 @@ import { VideoResponse } from './templates'
 import generateAlternate from './util/generateAlternate'
 
 const app = new Hono()
+
+app.get('/test/:videoId', async (c) => {
+    const { videoId } = c.req.param()
+    const awemeId = await getVideoInfo(videoId)
+    
+    if(awemeId instanceof Error) {
+        return new Response((awemeId as Error).message, { status: 500 })
+    }
+
+    return new Response(JSON.stringify(awemeId), {
+        status: 200,
+        headers: {
+            'Content-Type': 'application/json; charset=utf-8'
+        }
+    })
+})
 
 app.get('/', (c) => {
     return new Response('', {
@@ -20,7 +37,8 @@ const returnHTMLResponse = (content: string): HandlerResponse<Response> => {
     return new Response(content, {
         status: 200,
         headers: {
-            'Content-Type': 'text/html; charset=utf-8'
+            'Content-Type': 'text/html; charset=utf-8',
+            'Cache-Control': 'public, max-age=3600'
         }
     })
 }
@@ -51,7 +69,11 @@ async function handleVideo(c: any): Promise<Response> {
             const awemeId = await grabAwemeId(videoId)
             id = awemeId
         } catch(e) {
-            return new Response((e as Error).message, { status: 500 })
+            return new Response((e as Error).message, { status: 500,
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                }
+            })
         }
     }
 
@@ -59,7 +81,11 @@ async function handleVideo(c: any): Promise<Response> {
         const videoInfo = await getVideoInfo(id)
 
         if (videoInfo instanceof Error) {
-            return new Response((videoInfo as Error).message, { status: 500 })
+            return new Response((videoInfo as Error).message, { status: 500,
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                }
+            })
         }
 
         const responseContent = await VideoResponse(videoInfo);
@@ -69,44 +95,50 @@ async function handleVideo(c: any): Promise<Response> {
     }
 }
 
-app.get('/test/:videoId', async (c) => {
-    const { videoId } = c.req.param()
-    const awemeId = await getVideoInfo(videoId)
-    
-    if(awemeId instanceof Error) {
-        return new Response((awemeId as Error).message, { status: 500 })
-    }
-
-    return new Response(JSON.stringify(awemeId), {
-        status: 200,
-        headers: {
-            'Content-Type': 'application/json; charset=utf-8'
-        }
-    })
-})
-
 app.get('/generate/alternate', (c) => {
     const content = JSON.stringify(generateAlternate(c));
     return new Response(content, {
         status: 200,
         headers: {
-            'Content-Type': 'application/json; charset=utf-8'
+            'Content-Type': 'application/json; charset=utf-8',
+            'Cache-Control': 'public, max-age=3600'
         }
     })
 })
+
+function getExpiry(url: URL) {
+    const hex = new URL(url).pathname.split('/')[2];
+    return new Date(parseInt(hex, 16) * 1000);
+}
+
+app.get(
+    '/generate/*',
+    cache({
+      cacheName: 'my-app',
+      cacheControl: 'max-age=3600',
+    })
+  )
 
 app.get('/generate/video/:videoId', async (c) => {
     const { videoId } = c.req.param()
     const data = await getVideoInfo(videoId);
 
     if (data instanceof Error) {
-        return new Response((data as Error).message, { status: 500 })
+        return new Response((data as Error).message, { status: 500,
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+            }
+        })
     }
 
     if(data.video.play_addr.url_list.length > 0) {
         return c.redirect(data.video.play_addr.url_list[0])
     } else {
-        return new Response('No video found', { status: 404 })
+        return new Response('No video found', { status: 404,
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+            }
+        })
     }
 })
 
