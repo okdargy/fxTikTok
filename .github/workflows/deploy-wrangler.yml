@@ -1,3 +1,5 @@
+name: Deploy
+
 on:
   push:
     branches:
@@ -9,7 +11,9 @@ jobs:
     name: Deploy
     steps:
       - uses: actions/checkout@v3
-      - name: Deploy
-        uses: cloudflare/wrangler-action@v3
+      - run: node --version
+      - run: npm install
+      - name: Publish
+        uses: cloudflare/wrangler-action@2.0.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
