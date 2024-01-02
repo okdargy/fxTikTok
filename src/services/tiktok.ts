@@ -3,11 +3,11 @@ import { TikTokAPIResponse, AwemeList } from "../types/Services"
 export async function grabAwemeId(videoId: string): Promise<String | Error> {
     // https://vm.tiktok.com/ZMJmVWVpL/
     const res = await fetch('https://vm.tiktok.com/' + videoId)
-    
-    // find where res redirected us to tiktok.com 302 or tiktok.com/@username/video/awemeId with regex
-    const awemeIdPattern = /\/@[\w\d_]+\/video\/(\d{1,19})/
-    const match = res.url.match(awemeIdPattern)
-    
+    const url = new URL(res.url)
+
+    const awemeIdPattern = /\/@[\w\d_.]+\/video\/(\d{1,19})/
+    const match = url.pathname.match(awemeIdPattern)
+    console.log(url.pathname, match)
     if (match) {
         return match[1]
     } else {
