@@ -16,7 +16,6 @@ jobs:
       - name: Install Dependencies
         run: npm install
       - name: Deploy to Cloudflare Workers
-        with:
+        env:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          environment: production
         run: npm run deploy
