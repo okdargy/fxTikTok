@@ -1,5 +1,3 @@
-
-
 export default function MetaHelper(tags: {
     name: string,
     content: string,

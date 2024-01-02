@@ -1,7 +1,7 @@
 import { AwemeList } from '../../types/Services';
 import MetaHelper from '../../util/MetaHelper';
 
-export function VideoResponse(data: AwemeList) {
+export function VideoResponse(data: AwemeList): JSX.Element {
     return (
         <>
             {

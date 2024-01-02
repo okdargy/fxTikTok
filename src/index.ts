@@ -3,7 +3,7 @@ import { cache } from 'hono/cache'
 import { HandlerResponse } from 'hono/types'
 
 import { grabAwemeId, getVideoInfo } from './services/tiktok'
-import { VideoResponse } from './templates'
+import { VideoResponse, ErrorResponse } from './templates'
 import generateAlternate from './util/generateAlternate'
 
 const app = new Hono()
@@ -50,11 +50,12 @@ async function handleVideo(c: any): Promise<Response> {
     const { videoId } = c.req.param()
     let id = videoId;
 
+    // If the user agent is a bot, redirect to the TikTok page
     if (!BOT_REGEX.test(c.req.header('User-Agent') || '')) {
         return new Response('', {
             status: 302,
             headers: {
-                'Location': `https://www.tiktok.com/${c.req.path}}`
+                'Location': `https://www.tiktok.com/${c.req.path}`
             }
         })
     }
@@ -65,11 +66,8 @@ async function handleVideo(c: any): Promise<Response> {
             const awemeId = await grabAwemeId(videoId)
             id = awemeId
         } catch(e) {
-            return new Response((e as Error).message, { status: 500,
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                }
-            })
+            const responseContent = await ErrorResponse((e as Error).message);
+            return returnHTMLResponse(responseContent) as Response;
         }
     }
 
@@ -77,17 +75,15 @@ async function handleVideo(c: any): Promise<Response> {
         const videoInfo = await getVideoInfo(id)
 
         if (videoInfo instanceof Error) {
-            return new Response((videoInfo as Error).message, { status: 500,
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                }
-            })
+            const responseContent = await ErrorResponse((videoInfo as Error).message);
+            return returnHTMLResponse(responseContent) as Response;
         }
 
         const responseContent = await VideoResponse(videoInfo);
         return returnHTMLResponse(responseContent) as Response;
     } catch(e) {
-        return new Response((e as Error).message, { status: 500 })
+        const responseContent = await ErrorResponse((e as Error).message);
+        return returnHTMLResponse(responseContent) as Response;
     }
 }
 
