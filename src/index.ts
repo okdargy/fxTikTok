@@ -50,10 +50,7 @@ async function handleVideo(c: any): Promise<Response> {
     const { videoId } = c.req.param()
     let id = videoId;
 
-    // If the request is not from a bot, redirect to the video
-    // TODO NOW: fix redirecting discord bot
-    /*
-    if (!BOT_REGEX.test(c.req.headers['user-agent'] || "")) {
+    if (!BOT_REGEX.test(c.req.header('User-Agent') || '')) {
         return new Response('', {
             status: 302,
             headers: {
@@ -61,7 +58,6 @@ async function handleVideo(c: any): Promise<Response> {
             }
         })
     }
-    */
 
     // If the videoId needs to be validated, do it here
     if (!awemeIdPattern.test(videoId)) {
