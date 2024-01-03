@@ -12,3 +12,11 @@ Embed TikTok videos and slideshows on Discord with just `s/i/n`
   | Comparing `tiktok.com` vs. `tnktok.com` embeds on Discord |
 </details>
 
+## Usage
+Using fxTikTok is easy on Discord. Fix ugly and unresponsive embeds by sending your TikTok link and then typing `s/i/n`
+### How does this work?
+When you send `s/i/n` in Discord, it modifies your most recent message. Specifically, it replaces the first occurrence of the second parameter (`i`) in the message with the third parameter (`n`).
+
+| Before | After |
+|:--:|:--:|
+| t**i**ktok.com | t**n**ktok.com |
