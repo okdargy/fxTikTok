@@ -55,7 +55,7 @@ async function handleVideo(c: any): Promise<Response> {
         return new Response('', {
             status: 302,
             headers: {
-                'Location': `https://www.tiktok.com/${awemeIdPattern.test(videoId) ? c.req.path : 't'}/${videoId}`
+                'Location': 'https://www.tiktok.com' + `${awemeIdPattern.test(videoId) ? c.req.path : '/t/' + videoId}`
             }
         })
     }
