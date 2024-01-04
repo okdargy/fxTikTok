@@ -3,14 +3,15 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "wrangler dev src/index.ts",
-    "deploy": "wrangler deploy --minify src/index.ts",
-    "release": "pnpm run build && changeset publish"
+    "build": "wrangler build src/index.ts",
+    "deploy": "wrangler deploy --minify src/index.ts"
   },
   "dependencies": {
     "hono": "^3.11.7"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230914.0",
+    "@types/react": "^18.2.46",
     "wrangler": "^3.21.0"
   },
   "homepage": "https://tnktok.com"

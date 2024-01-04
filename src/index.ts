@@ -33,9 +33,9 @@ app.get('/', (c) => {
     })
 })
 
-const returnHTMLResponse = (content: string): HandlerResponse<Response> => {
+const returnHTMLResponse = (content: string, status?: number): HandlerResponse<Response> => {
     return new Response(content, {
-        status: 200,
+        status: status || 200,
         headers: {
             'Content-Type': 'text/html; charset=utf-8',
             'Cache-Control': 'public, max-age=3600'
@@ -67,7 +67,7 @@ async function handleVideo(c: any): Promise<Response> {
             id = awemeId
         } catch(e) {
             const responseContent = await ErrorResponse((e as Error).message);
-            return returnHTMLResponse(responseContent) as Response;
+            return returnHTMLResponse(responseContent, 201) as Response;
         }
     }
 
@@ -76,14 +76,14 @@ async function handleVideo(c: any): Promise<Response> {
 
         if (videoInfo instanceof Error) {
             const responseContent = await ErrorResponse((videoInfo as Error).message);
-            return returnHTMLResponse(responseContent) as Response;
+            return returnHTMLResponse(responseContent, 201) as Response;
         }
 
         const responseContent = await VideoResponse(videoInfo);
         return returnHTMLResponse(responseContent) as Response;
     } catch(e) {
         const responseContent = await ErrorResponse((e as Error).message);
-        return returnHTMLResponse(responseContent) as Response;
+        return returnHTMLResponse(responseContent, 201) as Response;
     }
 }
 
@@ -155,7 +155,7 @@ const routes = [
         handler: handleVideo
     },
     {
-        path: '/:username/video/:videoId',
+        path: '/*/video/:videoId',
         handler: handleVideo
     },
     {
