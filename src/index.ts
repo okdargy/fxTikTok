@@ -1,28 +1,11 @@
 import { Hono, Handler } from 'hono'
 import { cache } from 'hono/cache'
-import { HandlerResponse } from 'hono/types'
 
-import { grabAwemeId, getVideoInfo } from './services/tiktok'
-import { VideoResponse, ErrorResponse } from './templates'
-import generateAlternate from './util/generateAlternate'
+import { getVideoInfo } from '@/services/tiktok'
+import generateAlternate from '@/util/generateAlternate'
+import { handleVideo} from '@/videoRoutes'
 
 const app = new Hono()
-
-app.get('/test/:videoId', async (c) => {
-    const { videoId } = c.req.param()
-    const awemeId = await getVideoInfo(videoId)
-    
-    if(awemeId instanceof Error) {
-        return new Response((awemeId as Error).message, { status: 500 })
-    }
-
-    return new Response(JSON.stringify(awemeId), {
-        status: 200,
-        headers: {
-            'Content-Type': 'application/json; charset=utf-8'
-        }
-    })
-})
 
 app.get('/', (c) => {
     return new Response('', {
@@ -33,59 +16,32 @@ app.get('/', (c) => {
     })
 })
 
-const returnHTMLResponse = (content: string, status?: number): HandlerResponse<Response> => {
-    return new Response(content, {
-        status: status || 200,
-        headers: {
-            'Content-Type': 'text/html; charset=utf-8',
-            'Cache-Control': 'public, max-age=3600'
-        }
-    })
-}
-
-async function handleVideo(c: any): Promise<Response> {
-    const awemeIdPattern = /^\d{1,19}$/;
-    const BOT_REGEX = /bot|facebook|embed|got|firefox\/92|curl|wget|go-http|yahoo|generator|whatsapp|discord|preview|link|proxy|vkshare|images|analyzer|index|crawl|spider|python|cfnetwork|node/gi
-
-    const { videoId } = c.req.param()
-    let id = videoId;
-
-    // If the user agent is a bot, redirect to the TikTok page
-    if (!BOT_REGEX.test(c.req.header('User-Agent') || '')) {
-        return new Response('', {
-            status: 302,
-            headers: {
-                'Location': 'https://www.tiktok.com' + `${awemeIdPattern.test(videoId) ? c.req.path : '/t/' + videoId}`
-            }
-        })
+const routes = [
+    {
+        path: '/:videoId',
+        handler: handleVideo
+    },
+    {
+        path: '/*/video/:videoId',
+        handler: handleVideo
+    },
+    {
+        path: '/t/:videoId',
+        handler: handleVideo
     }
+]
+    
+// temp-fix: add trailing slash to all routes
+routes.forEach(route => {
+    app.get(route.path, route.handler)
+    app.get(route.path + '/', route.handler)
+})
 
-    // If the videoId needs to be validated, do it here
-    if (!awemeIdPattern.test(videoId)) {
-        try {
-            const awemeId = await grabAwemeId(videoId)
-            id = awemeId
-        } catch(e) {
-            const responseContent = await ErrorResponse((e as Error).message);
-            return returnHTMLResponse(responseContent, 201) as Response;
-        }
-    }
-
-    try {
-        const videoInfo = await getVideoInfo(id)
-
-        if (videoInfo instanceof Error) {
-            const responseContent = await ErrorResponse((videoInfo as Error).message);
-            return returnHTMLResponse(responseContent, 201) as Response;
-        }
-
-        const responseContent = await VideoResponse(videoInfo);
-        return returnHTMLResponse(responseContent) as Response;
-    } catch(e) {
-        const responseContent = await ErrorResponse((e as Error).message);
-        return returnHTMLResponse(responseContent, 201) as Response;
-    }
-}
+// Cache all generate requests for 1 hour
+app.get('/generate/*', cache({
+    cacheName: 'my-app',
+    cacheControl: 'max-age=3600',
+}))
 
 app.get('/generate/alternate', (c) => {
     const content = JSON.stringify(generateAlternate(c));
@@ -97,19 +53,6 @@ app.get('/generate/alternate', (c) => {
         }
     })
 })
-
-function getExpiry(url: URL) {
-    const hex = new URL(url).pathname.split('/')[2];
-    return new Date(parseInt(hex, 16) * 1000);
-}
-
-app.get(
-    '/generate/*',
-    cache({
-      cacheName: 'my-app',
-      cacheControl: 'max-age=3600',
-    })
-  )
 
 app.get('/generate/video/:videoId', async (c) => {
     const { videoId } = c.req.param()
@@ -147,27 +90,6 @@ app.get('/generate/image/:videoId', async (c) => {
     } else {
         return new Response(JSON.stringify(data), { status: 200 })
     }
-})
-
-const routes = [
-    {
-        path: '/:videoId',
-        handler: handleVideo
-    },
-    {
-        path: '/*/video/:videoId',
-        handler: handleVideo
-    },
-    {
-        path: '/t/:videoId',
-        handler: handleVideo
-    }
-]
-
-// temp-fix: add trailing slash to all routes
-routes.forEach(route => {
-    app.get(route.path, route.handler)
-    app.get(route.path + '/', route.handler)
 })
 
 export default app
