@@ -49,6 +49,14 @@ export function VideoResponse(data: AwemeList): JSX.Element {
                 {
                     name: `og:${data.video.duration !== 0 ? 'video' : 'image'}:type`,
                     content: `${data.video.duration !== 0 ? 'video/mp4' : 'image/jpeg'}`
+                },
+                {
+                    name: `og:${data.video.duration !== 0 ? 'video' : 'image'}:width`,
+                    content: `${data.video.duration !== 0 ? data.video.width : data.video.cover.width}`
+                },
+                {
+                   name: `og:${data.video.duration !== 0 ? 'video' : 'image'}:height`,
+                   content: `${data.video.duration !== 0 ? data.video.height : data.video.cover.height}` 
                 }
             ], {
                 likes: data.statistics.digg_count,
