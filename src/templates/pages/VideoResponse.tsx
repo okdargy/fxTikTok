@@ -44,7 +44,7 @@ export function VideoResponse(data: AwemeList): JSX.Element {
                 },
                 {
                     name: 'og:type',
-                    content: `video.${data.video.duration !== 0 ? 'video.other' : 'image.other'}`
+                    content: `${data.video.duration !== 0 ? 'video.other' : 'image.other'}`
                 },
                 {
                     name: `og:${data.video.duration !== 0 ? 'video' : 'image'}:type`,
