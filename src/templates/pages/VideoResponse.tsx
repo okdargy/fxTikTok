@@ -16,7 +16,7 @@ export function VideoResponse(data: AwemeList): JSX.Element {
                 },
                 {
                     name: 'twitter:card',
-                    content: 'player'
+                    content: `${data.video.duration !== 0 ? 'player' : 'summary_large_image'}`
                 },
                 {
                     name: 'twitter:site',
@@ -36,7 +36,7 @@ export function VideoResponse(data: AwemeList): JSX.Element {
                 },
                 {
                     name: 'og:description',
-                    content: data.desc
+                    content: data.video.duration !== 0 ? data.desc : null
                 },
                 {
                     name: `og:${data.video.duration !== 0 ? 'video' : 'image'}`,
@@ -57,12 +57,13 @@ export function VideoResponse(data: AwemeList): JSX.Element {
                 {
                    name: `og:${data.video.duration !== 0 ? 'video' : 'image'}:height`,
                    content: `${data.video.duration !== 0 ? data.video.height : data.video.cover.height}` 
-                }
+                },
             ], {
                 likes: data.statistics.digg_count,
                 comments: data.statistics.comment_count,
                 shares: data.statistics.share_count,
-                unique_id: data.author.unique_id
+                unique_id: data.author.unique_id,
+                images: data.image_post_info ? data.image_post_info.images.length : 0
             })
             }
         </>

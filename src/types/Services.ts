@@ -91,6 +91,7 @@ export interface AwemeList {
     products_info:                   null;
     follow_up_publish_from_id:       number;
     disable_search_trending_bar:     boolean;
+    image_post_info?:                 ImagePostInfo;
     music_begin_time_in_ms:          number;
     music_end_time_in_ms?:           number;
     item_distribute_source:          string;
@@ -597,4 +598,42 @@ export interface TikTokAPIResponseLogInfo {
 
 export interface LogPb {
     impr_id: string;
+}
+
+export interface Image {
+    display_image: {
+        uri: string;
+        url_list: string[];
+        width: number;
+        height: number;
+        url_prefix: string | null;
+    }
+    owner_watermark_image: {
+        uri: string;
+        url_list: string[];
+        width: number;
+        height: number;
+        url_prefix: string | null;
+    },
+    user_watermark_image: {
+        uri: string;
+        url_list: string[];
+        width: number;
+        height: number;
+        url_prefix: string | null;
+    },
+    thumbnail: {
+        uri: string;
+        url_list: string[];
+        width: number;
+        height: number;
+        url_prefix: string | null;
+    },
+    bitratre_images: string | null
+}
+
+export interface ImagePostInfo {
+    images: Image[];
+    image_post_cover: Image[];
+    post_extra: String
 }

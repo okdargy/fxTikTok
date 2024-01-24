@@ -25,12 +25,12 @@ export default function generateAlternate(c: Context): {
     provider_url: string
     title: string
 } {
-    const { likes, comments, shares, unique_id } = c.req.query()
+    const { likes, comments, shares, unique_id, images } = c.req.query()
 
     return {
         "version": "1.0",
         "type": "link",
-        "author_name": `❤️ ${formatNumber(likes)} 💬 ${formatNumber(comments)} 📤 ${formatNumber(shares)}`,
+        "author_name": `❤️ ${formatNumber(likes)} 💬 ${formatNumber(comments)} 📤 ${formatNumber(shares)} ${images ? '🖼️ ' + images : ''}`,
         "provider_name": 'fxTikTok',
         "provider_url": "https://tnktok.com",
         "title": `TikTok by @${unique_id}`
