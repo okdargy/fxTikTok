@@ -7,9 +7,13 @@ Embed TikTok videos and slideshows on Discord with just `s/i/n`
 <details>
   <summary>Click here to see how fxTikTok looks like</summary>
 
-  | ![Preview](https://github.com/okdargy/fxtiktok/assets/76412158/03895ee0-561a-4d8e-9ae7-06a67fcd4272) |
+  | <img src="https://github.com/okdargy/fxtiktok/assets/76412158/03895ee0-561a-4d8e-9ae7-06a67fcd4272" alt="Video Preview" /> |
   |:--:|
   | Comparing `tiktok.com` vs. `tnktok.com` embeds on Discord |
+
+  | <img src="https://github.com/okdargy/fxTikTok/assets/76412158/d7b25d07-5ed2-4092-9d30-8c95af788e7c" height="50%" width="50%" alt="Slideshow Preview" /> |
+  |:--:|
+  | Slideshow embeds |
 </details>
 
 ## Usage
