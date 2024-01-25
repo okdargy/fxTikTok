@@ -8,7 +8,7 @@ export function ErrorResponse(error: string): JSX.Element {
             MetaHelper([
                 {
                   "name": "og:title",
-                  "content": `❌: ${error}`
+                  "content": `❌ ${error}`
                 },
                 {
                   "name": "theme-color",
@@ -16,7 +16,7 @@ export function ErrorResponse(error: string): JSX.Element {
                 },
                 {
                   "name": "og:description",
-                  "content": "An error occurred while trying to fetch the video."
+                  "content": "An error occurred while trying to fetch the video. Please try again later."
                 },
                 {
                   "name": "og:site_name",
