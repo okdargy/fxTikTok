@@ -1,8 +1,3 @@
-> [!WARNING]  
-> At the moment, tnktok.com is currently being transferred to another registrar and therefore cannot be used until then. Any updates will be posted in [#2](https://github.com/okdargy/fxTikTok/issues/2)
->
->  In the meantime, I recommend using [tiktxk.com](https://tiktxk.com/) (s/o/x), another amazing TikTok embed fixer created by the [Britmoji](https://github.com/Britmoji) team.
-
 # 📦 fxTikTok
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/okdargy/fxtiktok)
 
