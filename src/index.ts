@@ -1,10 +1,10 @@
-import { Hono, Handler } from 'hono'
+import { Hono } from 'hono'
 import { cache } from 'hono/cache'
-import { HandlerResponse } from 'hono/types'
 
 import { grabAwemeId, getVideoInfo } from './services/tiktok'
 import { VideoResponse, ErrorResponse } from './templates'
 import generateAlternate from './util/generateAlternate'
+import { returnHTMLResponse, returnDirectResponse } from './util/ResponseHelper'
 
 const app = new Hono()
 
@@ -33,16 +33,6 @@ app.get('/', (c) => {
     })
 })
 
-const returnHTMLResponse = (content: string, status?: number): HandlerResponse<Response> => {
-    return new Response(content, {
-        status: status || 200,
-        headers: {
-            'Content-Type': 'text/html; charset=utf-8',
-            'Cache-Control': 'public, max-age=3600'
-        }
-    })
-}
-
 async function handleVideo(c: any): Promise<Response> {
     const awemeIdPattern = /^\d{1,19}$/;
     const BOT_REGEX = /bot|facebook|embed|got|firefox\/92|curl|wget|go-http|yahoo|generator|whatsapp|discord|preview|link|proxy|vkshare|images|analyzer|index|crawl|spider|python|cfnetwork|node/gi
@@ -60,7 +50,7 @@ async function handleVideo(c: any): Promise<Response> {
         })
     }
 
-    // If the videoId needs to be validated, do it here
+    // If the videoId doesn't match the awemeIdPattern, that means we have shortened TikTok link and we need to grab the awemeId
     if (!awemeIdPattern.test(videoId)) {
         try {
             const awemeId = await grabAwemeId(videoId)
@@ -79,8 +69,14 @@ async function handleVideo(c: any): Promise<Response> {
             return returnHTMLResponse(responseContent, 201) as Response;
         }
 
-        const responseContent = await VideoResponse(videoInfo);
-        return returnHTMLResponse(responseContent) as Response;
+        const url = new URL(c.req.url);
+
+        if(url.hostname.includes('d.tnktok.com')) {
+            return returnDirectResponse(videoInfo) as Response;
+        } else {
+            const responseContent = await VideoResponse(videoInfo);
+            return returnHTMLResponse(responseContent) as Response;
+        }
     } catch(e) {
         const responseContent = await ErrorResponse((e as Error).message);
         return returnHTMLResponse(responseContent, 201) as Response;
@@ -156,6 +152,10 @@ const routes = [
     },
     {
         path: '/*/video/:videoId',
+        handler: handleVideo
+    },
+    {
+        path: '/*/photo/:videoId',
         handler: handleVideo
     },
     {
