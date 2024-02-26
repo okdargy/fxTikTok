@@ -40,7 +40,7 @@ export function VideoResponse(data: AwemeList): JSX.Element {
                 },
                 {
                     name: `og:${data.video.duration !== 0 ? 'video' : 'image'}`,
-                    content: `https://tnktok.com/generate/${data.video.duration !== 0 ? 'video' : 'image'}/` + data.aweme_id
+                    content: `https://fxtiktok-rewrite.dargy.workers.dev/generate/${data.video.duration !== 0 ? 'video' : 'image'}/` + data.aweme_id
                 },
                 {
                     name: 'og:type',

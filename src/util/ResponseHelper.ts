@@ -15,7 +15,7 @@ export const returnDirectResponse = (videoInfo: AwemeList): HandlerResponse<Resp
         return new Response('', {
             status: 302,
             headers: {
-                'Location': `https://tnktok.com/generate/video/` + videoInfo.aweme_id
+                'Location': `https://fxtiktok-rewrite.dargy.workers.dev/generate/video/` + videoInfo.aweme_id
             }
         })
     } else {
