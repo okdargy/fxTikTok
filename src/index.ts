@@ -94,11 +94,6 @@ app.get('/generate/alternate', (c) => {
     })
 })
 
-function getExpiry(url: URL) {
-    const hex = new URL(url).pathname.split('/')[2];
-    return new Date(parseInt(hex, 16) * 1000);
-}
-
 app.get(
     '/generate/*',
     cache({

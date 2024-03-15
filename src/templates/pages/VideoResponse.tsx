@@ -2,6 +2,21 @@ import { AwemeList } from '../../types/Services';
 import MetaHelper from '../../util/MetaHelper';
 
 export function VideoResponse(data: AwemeList): JSX.Element {
+    let videoUrl = 'https://fxtiktok-rewrite.dargy.workers.dev/generate/video/' + data.aweme_id
+
+    if(data.video.duration > 0) {
+        const awemeVideo = data.video.download_addr.url_list.find((url) => url.includes('/aweme/v1/play'))
+        
+        if (awemeVideo) {
+            const url = new URL(awemeVideo)
+            
+            const videoId = url.searchParams.get('video_id')
+            const fileId = url.searchParams.get('file_id')
+
+            videoUrl = `https://${url.hostname}/aweme/v1/play/?video_id=${videoId}&file_id=${fileId}&item_id=${data.aweme_id}`
+        }
+    }
+
     return (
         <>
             {
@@ -40,7 +55,7 @@ export function VideoResponse(data: AwemeList): JSX.Element {
                 },
                 {
                     name: `og:${data.video.duration !== 0 ? 'video' : 'image'}`,
-                    content: `https://fxtiktok-rewrite.dargy.workers.dev/generate/${data.video.duration !== 0 ? 'video' : 'image'}/` + data.aweme_id
+                    content: `${data.video.duration !== 0 ? videoUrl : 'https://fxtiktok-rewrite.dargy.workers.dev/generate/image/' + data.aweme_id}`
                 },
                 {
                     name: 'og:type',
