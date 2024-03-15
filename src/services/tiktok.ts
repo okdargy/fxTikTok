@@ -16,8 +16,7 @@ export async function grabAwemeId(videoId: string): Promise<String | Error> {
 }
 
 export async function getVideoInfo(awemeId: String): Promise<AwemeList | Error> {
-    // https://api16-normal-c-useast1a.tiktokv.com/aweme/v1/feed/7311925846594342175
-    const res: Response = await fetch('https://api16-normal-c-useast1a.tiktokv.com/aweme/v1/feed/?aweme_id=' + awemeId, {
+    const res: Response = await fetch('https://api19-normal-c-useast2a.tiktokv.com/aweme/v1/feed/?aweme_id=' + awemeId, {
         cf: {
             cacheEverything: true,
             cacheTtlByStatus: { "200-299": 86400, 404: 1, "500-599": 0 },
