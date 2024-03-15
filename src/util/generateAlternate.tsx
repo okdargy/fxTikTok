@@ -21,18 +21,26 @@ export default function generateAlternate(c: Context): {
     version: string,
     type: string,
     author_name: string,
+    author_url: string,
     provider_name: string
     provider_url: string
     title: string
 } {
     const { likes, comments, shares, unique_id, images } = c.req.query()
 
+    let author_name = '';
+    if (likes) author_name += `❤️ ${formatNumber(likes)} `;
+    if (comments) author_name += `💬 ${formatNumber(comments)} `;
+    if (shares) author_name += `📤 ${formatNumber(shares)} `;
+    if (images) author_name += `🖼️ ${images}`;
+
     return {
         "version": "1.0",
         "type": "link",
-        "author_name": `❤️ ${formatNumber(likes)} 💬 ${formatNumber(comments)} 📤 ${formatNumber(shares)} ${images ? '🖼️ ' + images : ''}`,
+        "author_name": author_name,
+        "author_url": `https://www.tiktok.com/${unique_id ? '@' + unique_id : ''}`,
         "provider_name": 'fxTikTok',
-        "provider_url": "https://tnktok.com",
+        "provider_url": "https://github.com/okdargy/fxTikTok",
         "title": `TikTok by @${unique_id}`
     }
 }
