@@ -5,7 +5,7 @@ export function VideoResponse(data: AwemeList): JSX.Element {
     let videoUrl = 'https://fxtiktok-rewrite.dargy.workers.dev/generate/video/' + data.aweme_id
 
     if(data.video.duration > 0) {
-        const awemeVideo = data.video.download_addr.url_list.find((url) => url.includes('/aweme/v1/play'))
+        const awemeVideo = data.video.bit_rate[0].play_addr.url_list.find((url) => url.includes('/aweme/v1/play'))
         
         if (awemeVideo) {
             const url = new URL(awemeVideo)
