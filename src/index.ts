@@ -4,7 +4,7 @@ import { cache } from 'hono/cache'
 import { grabAwemeId, getVideoInfo } from './services/tiktok'
 import { VideoResponse, ErrorResponse } from './templates'
 import generateAlternate from './util/generateAlternate'
-import { returnHTMLResponse, returnDirectResponse } from './util/ResponseHelper'
+import { returnHTMLResponse } from './util/ResponseHelper'
 
 const app = new Hono()
 
@@ -57,7 +57,7 @@ async function handleVideo(c: any): Promise<Response> {
             id = awemeId
         } catch(e) {
             const responseContent = await ErrorResponse((e as Error).message);
-            return returnHTMLResponse(responseContent, 201) as Response;
+            return returnHTMLResponse(responseContent, 201);
         }
     }
 
@@ -66,20 +66,34 @@ async function handleVideo(c: any): Promise<Response> {
 
         if (videoInfo instanceof Error) {
             const responseContent = await ErrorResponse((videoInfo as Error).message);
-            return returnHTMLResponse(responseContent, 201) as Response;
+            return returnHTMLResponse(responseContent, 201);
         }
 
         const url = new URL(c.req.url);
 
-        if(url.hostname.includes('d.tnktok.com')) {
-            return returnDirectResponse(videoInfo) as Response;
+        if(url.hostname.includes('d.tnktok.com') || c.req.query('isDirect') === 'true') {
+                if(videoInfo.video.duration > 0) {
+                    return new Response('', {
+                        status: 302,
+                        headers: {
+                            'Location': 'https://fxtiktok-rewrite.dargy.workers.dev/generate/video/' + videoInfo.aweme_id
+                        }
+                    })
+                } else {
+                    return new Response('', {
+                        status: 302,
+                        headers: {
+                            'Location': 'https://fxtiktok-rewrite.dargy.workers.dev/generate/image/' + videoInfo.aweme_id
+                        }
+                    })
+                }
         } else {
             const responseContent = await VideoResponse(videoInfo);
-            return returnHTMLResponse(responseContent) as Response;
+            return returnHTMLResponse(responseContent);
         }
     } catch(e) {
         const responseContent = await ErrorResponse((e as Error).message);
-        return returnHTMLResponse(responseContent, 201) as Response;
+        return returnHTMLResponse(responseContent, 201);
     }
 }
 
