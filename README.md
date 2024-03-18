@@ -36,3 +36,5 @@ Don't want all that statistic clutter on your embed and only want the video or i
 | Before | After |
 |:--:|:--:|
 | **www**.t**i**ktok.com | **d**.t**n**ktok.com |
+
+> Alternatively, you can also set `isDirect` to true thru the URL query by adding `?isDirect=true` at the end of your URL
