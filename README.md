@@ -1,3 +1,35 @@
+
+<div align="right">
+  <details>
+    <summary >🌐 Language</summary>
+    <div>
+      <div align="center">
+        <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=en">English</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=zh-CN">简体中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=zh-TW">繁體中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=ja">日本語</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=ko">한국어</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=hi">हिन्दी</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=th">ไทย</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=fr">Français</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=de">Deutsch</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=es">Español</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=it">Italiano</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=ru">Русский</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=pt">Português</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=nl">Nederlands</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=pl">Polski</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=ar">العربية</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=fa">فارسی</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=tr">Türkçe</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=vi">Tiếng Việt</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=id">Bahasa Indonesia</a>
+        | <a href="https://openaitx.github.io/view.html?user=okdargy&project=fxTikTok&lang=as">অসমীয়া</
+      </div>
+    </div>
+  </details>
+</div>
+
 # fxTikTok
 
 Embed TikTok videos and slideshows on Discord with just `s/i/n`
