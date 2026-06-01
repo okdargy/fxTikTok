@@ -33,7 +33,7 @@ export default function generateAlternate(c: Context): {
     author_url: `https://www.tiktok.com${unique_id ? '/@' + unique_id : ''}`,
     provider_name:
       truncatedDescription || (showSponsor ? 'Use fxTikTok often? Consider supporting us on GitHub!' : 'fxTikTok - Embed with s/i/n'),
-    provider_url: showSponsor ? 'https://github.com/sponsors/okdargy' : 'https://github.com/okdargy/fxTikTok',
+    provider_url: showSponsor ? 'https://github.com/sponsors/okdargy' : 'https://github.com/shamu4life/fxtiktok-rewrite',
     title: `TikTok by @${unique_id}`
   }
 }

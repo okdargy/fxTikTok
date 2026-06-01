@@ -195,7 +195,7 @@ generate.get('/pfp/:author', async (c) => {
     const data = await scrapePfpData(author)
 
     if (data instanceof Error) {
-      if (data.message === 'Restricted') return c.redirect('https://pldrs.tnktok.com/restricted.png')
+      if (data.message === 'Restricted') return c.redirect('https://raw.githubusercontent.com/shamu4life/fxtiktok-rewrite/main/.github/readme/restricted.png')
 
       return new Response((data as Error).message, {
         status: 500,

@@ -134,7 +134,7 @@ export default async function generateActivity(param: string, c: Context) {
     visibility: 'public',
     application: {
       name: 'fxTikTok',
-      website: 'https://github.com/okdargy/fxTikTok'
+      website: 'https://github.com/shamu4life/fxtiktok-rewrite'
     },
     media_attachments: [...media],
     account: {

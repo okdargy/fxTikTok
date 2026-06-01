@@ -26,7 +26,7 @@ app.get('/', () => {
   return new Response(
     JSON.stringify({
       message: 'fxTikTok offload server is running!',
-      github: 'https://github.com/okdargy/fxTikTok',
+      github: 'https://github.com/shamu4life/fxtiktok-rewrite',
       uptime: Date.now() - firstStart
     }),
     {
