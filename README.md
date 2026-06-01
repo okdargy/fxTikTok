@@ -8,9 +8,11 @@ Embed TikTok videos and slideshows on Discord!
 ## 📸 Screenshots
   
 <img src="/.github/readme/compare-default.png" alt="Video Preview" height="400px" /> <img src="/.github/readme/compare-fxtiktok.png" alt="Video Preview" height="400px" />
+
 Comparing `tiktok.com` vs. `megapenispoopenfarten.sex` embeds on Discord
 
 <img src="/.github/readme/direct.png" alt="Direct Preview" height="400px" />
+
 Direct image/video support                         
 
 ## 📖 Usage
@@ -43,6 +45,9 @@ Don't want all that statistic clutter on your embed and only want the video or i
 By default, fxTikTok puts the description into the `og:description` tag, but Discord removes that from the embed if there's a video inside the embed. fxTikTok decided not to add it to the top like what [tfxktok.com](https://tfxktok.com) does to prevent the embed from getting too cluttered with hashtags.
 
 However, fxTikTok wants to give users the option to add it if it provides additional context to the video. You can change your URL to `a.megapenispoopenfarten.sex` to add the description to the top.
+
+<img src="/.github/readme/detailed description.png" alt="Direct Preview" height="400px" />
+
 
 |         Before         |        After         |
 | :--------------------: | :------------------: |
