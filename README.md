@@ -7,17 +7,11 @@ Embed TikTok videos and slideshows on Discord!
 
 ## 📸 Screenshots
   
-<img src="/.github/readme/compare.png" alt="Video Preview" height="400px" />
-:--------------------------------------------------------------------------:
-  Comparing `tiktok.com` vs. `megapenispoopenfarten.sex` embeds on Discord
-
-<img src="/.github/readme/slideshow.png" alt="Slideshow Preview" />
-:-----------------------------------------------------------------:
-                         Slideshow embeds                          
+<img src="/.github/readme/compare-default.png" alt="Video Preview" height="400px" /> <img src="/.github/readme/compare-fxtiktok.png" alt="Video Preview" height="400px" />
+Comparing `tiktok.com` vs. `megapenispoopenfarten.sex` embeds on Discord
 
 <img src="/.github/readme/direct.png" alt="Direct Preview" height="400px" />
-:--------------------------------------------------------------------------:
-                         Direct image/video support                         
+Direct image/video support                         
 
 ## 📖 Usage
 
