@@ -8,12 +8,13 @@
     "deploy": "wrangler deploy --minify src/index.ts",
     "deploy:staging": "wrangler deploy --env=staging --minify src/index.ts",
     "offload": "bun run src/offload.ts",
-    "test": "jest",
+    "test": "bun test",
     "prettier": "prettier . --write"
   },
   "dependencies": {
     "@types/set-cookie-parser": "^2.4.7",
     "hono": "^3.11.7",
+    "prom-client": "^15.1.3",
     "redis": "^5.9.0",
     "set-cookie-parser": "^2.6.0"
   },

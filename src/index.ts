@@ -6,8 +6,10 @@ import { returnHTMLResponse } from './util/responseHelper'
 import { env } from 'hono/adapter'
 import { generate, respondAlternative, awemeIdPattern, awemeLinkPattern } from './generate'
 import { ProfileResponse } from './templates/pages/ProfileResponse'
+import { metricsMiddleware, serveMetrics, withRoutePattern } from './metrics'
 
 const app = new Hono()
+app.use('*', metricsMiddleware())
 
 // Credit: https://github.com/FixTweet/FxTwitter/blob/main/src/constants.ts#L24
 const BOT_REGEX =
@@ -20,7 +22,9 @@ app.get('/', () => {
       Location: 'https://github.com/shamu4life/fxtiktok-rewrite'
     }
   })
-})
+)
+
+app.get('/favicon.ico', () => new Response(null, { status: 204 }))
 
 async function handleShort(c: any): Promise<Response> {
   const { videoId } = c.req.param()
@@ -237,8 +241,16 @@ async function processLive(c: any, authorName: string): Promise<Response> {
   }
 }
 
-app.get('/api/v1/statuses/:videoId', async (c) => respondAlternative(c))
-app.get('/users/:username/statuses/:videoId', async (c) => respondAlternative(c))
+app.get('/metrics', serveMetrics)
+
+app.get(
+  '/api/v1/statuses/:videoId',
+  withRoutePattern('/api/v1/statuses/:videoId', async (c) => respondAlternative(c))
+)
+app.get(
+  '/users/:username/statuses/:videoId',
+  withRoutePattern('/users/:username/statuses/:videoId', async (c) => respondAlternative(c))
+)
 
 app.route('/generate', generate)
 
@@ -267,8 +279,8 @@ const routes = [
 
 // temp-fix: add trailing slash to all routes
 routes.forEach((route) => {
-  app.get(route.path, route.handler)
-  app.get(route.path + '/', route.handler)
+  app.get(route.path, withRoutePattern(route.path, route.handler))
+  app.get(route.path + '/', withRoutePattern(route.path, route.handler))
 })
 
 export default {
