@@ -24,6 +24,8 @@ export default async function generateActivity(param: string, c: Context) {
 
   let media = []
   const totalImages = videoInfo.imagePost?.images?.length || 0
+  const duration = videoInfo.video.duration
+  const hasDuration = totalImages === 0 && Number.isFinite(duration) && duration > 0 && duration <= Number.MAX_SAFE_INTEGER
   const totalPages = Math.ceil(totalImages / IMAGES_PER_PAGE)
   const currentPage = totalPages > 0 ? Math.min(page, totalPages) : 1
   const activityId = buildActivityId(videoId, { hq, addDesc: forceDescription, page: currentPage })
@@ -78,7 +80,9 @@ export default async function generateActivity(param: string, c: Context) {
       meta: {
         original: {
           width: videoInfo.video.width,
-          height: videoInfo.video.height
+          height: videoInfo.video.height,
+          // Playback duration in seconds, from the existing video metadata.
+          ...(hasDuration ? { duration } : {})
         }
       }
     })
