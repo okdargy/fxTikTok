@@ -59,9 +59,8 @@ describe('GET /@i/video/:videoId', () => {
 })
 
 describe('GET /@i/video/:videoId (age restricted)', () => {
-  // /t/ZP81NmQk9/
   it('should return 200', async () => {
-    const res = await app.request('/t/ZP81NmQk9', {
+    const res = await app.request('/@cnn/video/7592870340661873933', {
       method: 'GET',
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)'
@@ -75,7 +74,7 @@ describe('GET /@i/video/:videoId (age restricted)', () => {
 
 describe('GET /t/:videoId', () => {
   it('should return 200', async () => {
-    const res = await app.request('/t/ZPRKrbUB1', {
+    const res = await app.request('/t/ZPLRh3CsY', {
       method: 'GET',
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)'

@@ -5,7 +5,10 @@ import generateActivity from '@/util/generateActivity'
 
 jest.mock('@/services/tiktok', () => ({ scrapeVideoData: jest.fn() }))
 
-const scrape = jest.mocked(scrapeVideoData)
+const scrape = (typeof jest.mocked === 'function' ? jest.mocked(scrapeVideoData) : (scrapeVideoData as any)) as jest.MockedFunction<
+  typeof scrapeVideoData
+>
+
 const app = new Hono()
 app.get('/', async (c) => c.json(await generateActivity('7000000000000000000', c)))
 

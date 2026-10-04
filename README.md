@@ -45,42 +45,17 @@ When you send `s/i/n` in Discord, it modifies your most recent message using the
 > [!TIP]
 > If you run a Discord server, I highly recommend adding [FixTweetBot](https://github.com/Kyrela/FixTweetBot) to your server. It automatically modifies links to use embed fixers like fxTikTok, and is highly customizable.
 
-### Using Direct Embeds
+### Embed Modes
 
-Don't want all that statistic clutter on your embed and only want the video or image? Simply change your URL to `d.tnktok.com`
+You can customize embeds using subdomains or URL query parameters:
 
-|         Before         |        After         |
-| :--------------------: | :------------------: |
-| **www**.t**i**ktok.com | **d**.t**n**ktok.com |
+| Mode | Subdomain | Query Parameter | Description |
+| :--- | :--- | :--- | :--- |
+| **Direct** | `d.tnktok.com` | `?isDirect=true` | Shows only the media without statistic clutter. |
+| **Captions** | `a.tnktok.com` | `?addDesc=true` | Adds the video caption/description to the top (Discord hides `og:description` on videos). |
+| **High Quality** | `hq.tnktok.com` | `?hq=true` | Enables H.265/HEVC playback for higher quality (defaults to H.264 for [compatibility](https://github.com/okdargy/fxTikTok/issues/14)). |
 
-> Alternatively, you can also set `isDirect` to true thru the URL query by adding `?isDirect=true` at the end of your URL
-
-### "I don't see the video's caption!"
-
-By default, we put the description into the `og:description` tag, but Discord removes that from the embed if there's a video inside the embed. We decided not to add it to the top like what [tfxktok.com](https://tfxktok.com) does to prevent the embed from getting too cluttered with hashtags.
-
-However, we want to give users the option to add it in case it brings additional context to the video. You can change your URL to `a.tnktok.com` to add the description to the top.
-
-|         Before         |        After         |
-| :--------------------: | :------------------: |
-| **www**.t**i**ktok.com | **a**.t**n**ktok.com |
-
-> Alternatively, you can also set `addDesc` to true thru the URL query by adding `?addDesc=true` at the end of your URL
-
-### Changing to High Quality
-
-TikTok supports H.265/HEVC (High Efficiency Video Coding) which offers significantly better quality at the same file size compared to H.264, at the cost of compatibility. By default, we use H.264 quality since [many users report issues with embeds breaking with H.265](https://github.com/okdargy/fxTikTok/issues/14), but support enabling H.265.
-
-To enable high quality H.265 playback, add `?hq=true` or use `hq.tnktok.com`:
-| Before | After |
-| :--------------------: | :------------------: |
-| **www**.t**i**ktok.com | **hq**.t**n**ktok.com |
-
-### Combining Modes
-
-You can combine different modes by using specific hostnames or URL query parameters. For example, if you want to enable H.265 and also see the caption, you can use `hq.a.tnktok.com` or add `?hq=true&addDesc=true` to the URL.
-
-> You cannot use Direct Mode and Caption Mode simultaneously since they contradict themselves.
+Modes can be combined by chaining subdomains (e.g. `hq.a.tnktok.com`) or query parameters (e.g. `?hq=true&addDesc=true`). Note that Direct and Captions cannot be used together.
 
 ### Why use tnktok.com?
 
@@ -132,9 +107,7 @@ Once done, go to "Settings" and change your offload server under "Variables and 
 
 ## 📈 Observability
 
-fxTikTok exposes Prometheus metrics at `/metrics` only when `METRICS_ENABLED=true` is set in the environment. Route traffic is grouped by route pattern, not raw URLs, so `/@user/video/123` and `/@other/video/456` both roll up under the same route label.
-
-The API uses the [prom-client](https://github.com/siimon/prom-client) npm package to keep in-process counters and latency histograms with low overhead and no per-request storage. Historical reporting comes from Prometheus retention, which is what lets Grafana show hourly, daily, and longer time ranges even though application counters reset on restart.
+fxTikTok exposes Prometheus metrics at `/metrics`! This is only exposed only when `METRICS_ENABLED=true` is set in your environment varialbes.
 
 Example Prometheus scrape config:
 
