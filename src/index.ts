@@ -11,9 +11,9 @@ import { metricsMiddleware, serveMetrics, withRoutePattern } from './metrics'
 const app = new Hono()
 app.use('*', metricsMiddleware())
 
-// Credit: https://github.com/FixTweet/FxTwitter/blob/main/src/constants.ts#L24
+// Credit: https://github.com/FixTweet/FxTwitter/blob/main/src/constants.ts#L59
 const BOT_REGEX =
-  /bot|facebook|embed|got|firefox\/92|firefox\/38|curl|wget|go-http|yahoo|generator|whatsapp|revoltchat|preview|link|proxy|vkshare|images|analyzer|index|crawl|spider|python|cfnetwork|node|mastodon|http\.rb|ruby|bun\/|fiddler|iframely|steamchaturllookup/i
+  /bot|facebook|embed|got|firefox\/92|firefox\/38|chrome\/96\.0\.4664\.110|curl|wget|go-http|yahoo|generator|whatsapp|revoltchat|preview|link|proxy|vkshare|images|analyzer|index|crawl|spider|python|node|deno|mastodon|http\.rb|ruby|bun\/|fiddler|iframely|steamchaturllookup|bluesky|matrix-media-repo|cardyb|resolver|util|feedly|rss|reader|atom|thunderbird|axios/i
 
 app.get(
   '/',
