@@ -45,7 +45,7 @@ describe('GET /@i/video/:videoId', () => {
     expect(res.status).toBe(302)
   })
 
-  it('should return 500', async () => {
+  it('should return 404', async () => {
     const res = await app.request('/@i/video/123', {
       method: 'GET',
       headers: {
@@ -53,8 +53,8 @@ describe('GET /@i/video/:videoId', () => {
       }
     })
 
-    expect(res.status).toBe(500)
-    expect(await res.text()).toContain('An error occurred while trying to fetch data. Please try again later.')
+    expect(res.status).toBe(404)
+    expect(await res.text()).toContain('It may have been deleted, made private, or restricted by TikTok.')
   })
 })
 
@@ -69,6 +69,28 @@ describe('GET /@i/video/:videoId (age restricted)', () => {
 
     expect(res.status).toBe(200)
     expect(await res.text()).toContain('⚠️')
+  })
+})
+
+describe('GET /@i/video/:videoId (unavailable)', () => {
+  afterEach(() => jest.restoreAllMocks())
+
+  it('should return 404 for region-blocked videos', async () => {
+    const data = { __DEFAULT_SCOPE__: { 'webapp.video-detail': { statusCode: 10231, statusMsg: 'cross_border_violation' } } }
+    jest
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(
+        new Response(`<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__" type="application/json">${JSON.stringify(data)}</script>`)
+      )
+
+    const res = await app.request('/@i/video/7681251974356012306', {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)'
+      }
+    })
+
+    expect(res.status).toBe(404)
   })
 })
 
@@ -103,12 +125,20 @@ describe('GET /generate/video/:videoId', () => {
     expect(res.headers.get('Location')).toContain('video/tos')
   })
 
-  it('should return 500', async () => {
+  it('should return 404 (age restricted)', async () => {
+    const res = await app.request('/generate/video/7592870340661873933', {
+      method: 'GET'
+    })
+
+    expect(res.status).toBe(404)
+  })
+
+  it('should return 404', async () => {
     const res = await app.request('/generate/video/123', {
       method: 'GET'
     })
 
-    expect(res.status).toBe(500)
+    expect(res.status).toBe(404)
   })
 })
 

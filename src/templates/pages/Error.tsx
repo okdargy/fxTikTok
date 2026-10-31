@@ -1,7 +1,11 @@
 import { Context } from 'hono'
 import MetaHelper from '../../util/metaHelper'
 
-export function ErrorResponse(error: string, c: Context): JSX.Element {
+export function ErrorResponse(
+  error: string,
+  c: Context,
+  description = 'An error occurred while trying to fetch data. Please try again later.'
+): JSX.Element {
   return (
     <>
       {MetaHelper(c, [
@@ -15,7 +19,7 @@ export function ErrorResponse(error: string, c: Context): JSX.Element {
         },
         {
           name: 'og:description',
-          content: 'An error occurred while trying to fetch data. Please try again later.'
+          content: description
         },
         {
           name: 'og:site_name',

@@ -21,7 +21,7 @@ describe('GET /@i/photo/:videoId', () => {
     expect(res.status).toBe(302)
   })
 
-  it('should return 500', async () => {
+  it('should return 404', async () => {
     const res = await app.request('/@i/photo/123', {
       method: 'GET',
       headers: {
@@ -29,8 +29,8 @@ describe('GET /@i/photo/:videoId', () => {
       }
     })
 
-    expect(res.status).toBe(500)
-    expect(await res.text()).toContain('An error occurred while trying to fetch data. Please try again later.')
+    expect(res.status).toBe(404)
+    expect(await res.text()).toContain('It may have been deleted, made private, or restricted by TikTok.')
   })
 })
 
@@ -43,11 +43,11 @@ describe('GET /generate/image/:videoId', () => {
     expect(res.status).toBe(302)
   })
 
-  it('should return 500', async () => {
+  it('should return 404', async () => {
     const res = await app.request('/generate/image/123', {
       method: 'GET'
     })
 
-    expect(res.status).toBe(500)
+    expect(res.status).toBe(404)
   })
 })

@@ -9,6 +9,9 @@ const cookie = new Cookie([])
 let redisClient: ReturnType<typeof createClient> | null = null
 const REDIS_ENABLED = process.env.REDIS_ENABLED === 'true'
 const REDIS_TTL = 86400
+const NOT_FOUND_TTL = 600 // deleted videos stay cached briefly, in case they were only under review
+
+export class NotFoundError extends Error {}
 
 async function getRedisClient() {
   if (!REDIS_ENABLED) return null
@@ -154,8 +157,18 @@ export async function scrapePageData(
 
     const scopeData = json['__DEFAULT_SCOPE__'][scope]
 
-    if (!scopeData || scopeData.statusCode === 10204) {
+    if (!scopeData) {
       return new Error(`Could not find ${scopeType} data`)
+    } else if (scopeData.statusCode === 10204) {
+      if (redis) {
+        try {
+          await redis.setEx(cacheKey, NOT_FOUND_TTL, JSON.stringify(scopeData))
+        } catch (redisErr) {
+          console.error('Redis set error:', redisErr)
+        }
+      }
+
+      return new NotFoundError(`Could not find ${scopeType} data`)
     } else {
       if (redis) {
         try {
@@ -208,6 +221,8 @@ export async function scrapeVideoData(awemeId: string, author?: string): Promise
   })
 
   if (result instanceof Error) return result
+  // 10204 (deleted, cached briefly), 10222 (private author), 10231 (region-blocked) etc.
+  if (result.statusCode) return new NotFoundError('Could not find video data')
   if (!result.itemInfo?.itemStruct) return new Error('Could not find video data')
   return result.itemInfo.itemStruct
 }

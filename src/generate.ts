@@ -4,7 +4,7 @@ export const generate = new Hono()
 import generateAlternate from './util/generateAlternate'
 import generateActivity from './util/generateActivity'
 import { withRoutePattern } from './metrics'
-import { scrapePfpData, scrapeVideoData } from './services/tiktok'
+import { NotFoundError, scrapePfpData, scrapeVideoData } from './services/tiktok'
 
 export const awemeIdPattern = /^\d{1,19}$/
 export const awemeLinkPattern = /\/@?([\w\d_.]*)\/(video|photo|live)\/?(\d{19})?/
@@ -49,7 +49,7 @@ generate.get(
 
       if (data instanceof Error) {
         return new Response((data as Error).message, {
-          status: 500,
+          status: data instanceof NotFoundError ? 404 : 500,
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate'
           }
@@ -106,11 +106,11 @@ generate.get(
           return response
         }
       } else {
-        throw new Error('Could not find an aweme play URL')
+        throw new NotFoundError('Could not find an aweme play URL')
       }
     } catch (e) {
       return new Response((e as Error).message, {
-        status: 500,
+        status: e instanceof NotFoundError ? 404 : 500,
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate'
         }
@@ -131,15 +131,16 @@ generate.get(
 
     try {
       const data = await scrapeVideoData(videoId)
+      if (data instanceof Error) throw data
 
       if ('imagePost' in data && data.imagePost.images.length > 0 && +index < data.imagePost.images.length) {
         return c.redirect(data.imagePost.images[+index].imageURL.urlList[0])
       } else {
-        throw new Error('Image not found')
+        throw new NotFoundError('Image not found')
       }
     } catch (e) {
       return new Response((e as Error).message, {
-        status: 500,
+        status: e instanceof NotFoundError ? 404 : 500,
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate'
         }
@@ -164,7 +165,7 @@ generate.get(
 
       if (data instanceof Error) {
         return new Response((data as Error).message, {
-          status: 500,
+          status: data instanceof NotFoundError ? 404 : 500,
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate'
           }
@@ -248,7 +249,7 @@ generate.get(
 
       if (data instanceof Error) {
         return new Response((data as Error).message, {
-          status: 500,
+          status: data instanceof NotFoundError ? 404 : 500,
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate'
           }
@@ -258,11 +259,11 @@ generate.get(
       if (data.video.cover) {
         return c.redirect(data.video.originCover)
       } else {
-        throw new Error('Cover not found')
+        throw new NotFoundError('Cover not found')
       }
     } catch (e) {
       return new Response((e as Error).message, {
-        status: 500,
+        status: e instanceof NotFoundError ? 404 : 500,
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate'
         }

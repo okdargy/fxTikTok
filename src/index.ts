@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { scrapeLiveData, scrapeProfileData, scrapeVideoData } from './services/tiktok'
-import { grabAwemeId } from './services/tiktok'
+import { grabAwemeId, NotFoundError } from './services/tiktok'
 import { VideoResponse, ErrorResponse, LiveResponse, WarningResponse } from './templates'
 import { returnHTMLResponse } from './util/responseHelper'
 import { env } from 'hono/adapter'
@@ -134,6 +134,15 @@ async function processVideo(c: any, id: string): Promise<Response> {
 
   try {
     const videoInfo = await scrapeVideoData(id)
+
+    if (videoInfo instanceof NotFoundError) {
+      const responseContent = await ErrorResponse(
+        'Video unavailable',
+        c,
+        'It may have been deleted, made private, or restricted by TikTok.'
+      )
+      return returnHTMLResponse(responseContent, 404)
+    }
 
     if (videoInfo instanceof Error) {
       const responseContent = await ErrorResponse((videoInfo as Error).message, c)
