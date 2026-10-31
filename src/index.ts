@@ -1,6 +1,5 @@
-import { Hono } from 'hono'
-import { scrapeLiveData, scrapeProfileData, scrapeVideoData } from './services/tiktok'
-import { grabAwemeId, NotFoundError } from './services/tiktok'
+import { Context, Hono } from 'hono'
+import { grabAwemeId, NotFoundError, scrapeLiveData, scrapeProfileData, scrapeVideoData } from './services/tiktok'
 import { VideoResponse, ErrorResponse, LiveResponse, WarningResponse } from './templates'
 import { returnHTMLResponse } from './util/responseHelper'
 import { env } from 'hono/adapter'
@@ -15,104 +14,52 @@ app.use('*', metricsMiddleware())
 const BOT_REGEX =
   /bot|facebook|embed|got|firefox\/92|firefox\/38|chrome\/96\.0\.4664\.110|curl|wget|go-http|yahoo|generator|whatsapp|revoltchat|preview|link|proxy|vkshare|images|analyzer|index|crawl|spider|python|node|deno|mastodon|http\.rb|ruby|bun\/|fiddler|iframely|steamchaturllookup|bluesky|matrix-media-repo|cardyb|resolver|util|feedly|rss|reader|atom|thunderbird|axios/i
 
+const isBot = (c: Context) => BOT_REGEX.test(c.req.header('User-Agent') || '')
+const redirectToTikTok = (c: Context, path = c.req.path) => c.redirect('https://www.tiktok.com' + path)
+
+async function errorPage(c: Context, message: string, status = 500, description?: string): Promise<Response> {
+  return returnHTMLResponse(await ErrorResponse(message, c, description), status)
+}
+
 app.get(
   '/',
-  withRoutePattern('/', () => {
-    return new Response('', {
-      status: 302,
-      headers: {
-        Location: 'https://github.com/okdargy/fxtiktok'
-      }
-    })
-  })
+  withRoutePattern('/', (c) => c.redirect('https://github.com/okdargy/fxtiktok'))
 )
 
 app.get('/favicon.ico', () => new Response(null, { status: 204 }))
 
 async function handleShort(c: any): Promise<Response> {
   const { videoId } = c.req.param()
-  if (videoId.startsWith('@')) return handleProfile(videoId.startsWith('@') ? videoId.substring(1) : videoId, c) // since its a short url (/@username), busted way of doing this since its technically defined as videoId. it's 12 am ok
-  let id = videoId.split('.')[0] // for .mp4, .webp, etc.
+  if (videoId.startsWith('@')) return handleProfile(videoId.substring(1), c) // since its a short url (/@username), busted way of doing this since its technically defined as videoId. it's 12 am ok
+  const id = videoId.split('.')[0] // for .mp4, .webp, etc.
 
   const link = await grabAwemeId(id)
-  link.search = ''
+  if (!isBot(c)) return redirectToTikTok(c, link.pathname)
 
-  if (!BOT_REGEX.test(c.req.header('User-Agent') || '')) {
-    return new Response('', {
-      status: 302,
-      headers: {
-        Location: 'https://www.tiktok.com' + link.pathname
-      }
-    })
-  }
-
-  let resolvedId = id
-  if (link.pathname.includes('/video') || link.pathname.includes('/photo')) {
-    const match = link.pathname.match(awemeLinkPattern)
-    if (match) resolvedId = match[3]
-    return processVideo(c, resolvedId)
-  } else if (link.pathname.includes('/live')) {
-    const match = link.pathname.match(awemeLinkPattern)
-    let authorName = ''
-    if (match) authorName = match[1]
-    return processLive(c, authorName)
-  } else {
-    const responseContent = await ErrorResponse('Invalid vm link', c)
-    return returnHTMLResponse(responseContent, 400)
-  }
+  const match = link.pathname.match(awemeLinkPattern)
+  if (link.pathname.includes('/video') || link.pathname.includes('/photo')) return processVideo(c, match ? match[3] : id)
+  if (link.pathname.includes('/live')) return processLive(c, match ? match[1] : '')
+  return errorPage(c, 'Invalid vm link', 400)
 }
 
 async function handleProfile(author: string, c: any): Promise<Response> {
-  if (!BOT_REGEX.test(c.req.header('User-Agent') || '')) {
-    const url = new URL(c.req.url)
-    url.search = ''
-
-    return new Response('', {
-      status: 302,
-      headers: {
-        Location: 'https://www.tiktok.com' + url.pathname
-      }
-    })
-  }
+  if (!isBot(c)) return redirectToTikTok(c)
 
   const profileInfo = await scrapeProfileData(author)
+  if (profileInfo instanceof Error) return errorPage(c, profileInfo.message)
 
-  if (profileInfo instanceof Error) {
-    const responseContent = await ErrorResponse((profileInfo as Error).message, c)
-    return returnHTMLResponse(responseContent, 500)
-  }
-
-  const responseContent = await ProfileResponse(profileInfo, c)
-  return returnHTMLResponse(responseContent)
+  return returnHTMLResponse(await ProfileResponse(profileInfo, c))
 }
 
 async function handleVideo(c: any): Promise<Response> {
-  const { videoId } = c.req.param()
-  let id = videoId.split('.')[0]
+  if (!isBot(c)) return redirectToTikTok(c)
 
-  if (!BOT_REGEX.test(c.req.header('User-Agent') || '')) {
-    const url = new URL(c.req.url)
-    url.search = ''
-
-    return new Response('', {
-      status: 302,
-      headers: {
-        Location: 'https://www.tiktok.com' + url.pathname
-      }
-    })
-  }
-
+  let id = c.req.param('videoId').split('.')[0]
   if (!awemeIdPattern.test(id)) {
     console.log(`Aweme ID pattern did not match for ID: ${id}`)
-    const url = await grabAwemeId(id)
-    const match = url.pathname.match(awemeLinkPattern)
-
-    if (match) {
-      id = match[3]
-    } else {
-      const responseContent = await ErrorResponse('Invalid video ID', c)
-      return returnHTMLResponse(responseContent, 400)
-    }
+    const match = (await grabAwemeId(id)).pathname.match(awemeLinkPattern)
+    if (!match) return errorPage(c, 'Invalid video ID', 400)
+    id = match[3]
   }
 
   return processVideo(c, id)
@@ -124,132 +71,55 @@ async function processVideo(c: any, id: string): Promise<Response> {
 
   try {
     const videoInfo = await scrapeVideoData(id)
-
     if (videoInfo instanceof NotFoundError) {
-      const responseContent = await ErrorResponse(
-        'Video unavailable',
-        c,
-        'It may have been deleted, made private, or restricted by TikTok.'
-      )
-      return returnHTMLResponse(responseContent, 404)
+      return errorPage(c, 'Video unavailable', 404, 'It may have been deleted, made private, or restricted by TikTok.')
     }
-
-    if (videoInfo instanceof Error) {
-      const responseContent = await ErrorResponse((videoInfo as Error).message, c)
-      return returnHTMLResponse(responseContent, 500)
-    }
+    if (videoInfo instanceof Error) return errorPage(c, videoInfo.message)
 
     const url = new URL(c.req.url)
+    const isHq = (hq || 'false').toLowerCase() == 'true' || url.hostname.includes('hq.')
     const extensions = ['mp4', 'png', 'jpg', 'jpeg', 'webp', 'webm']
 
     if (url.hostname.includes('d.') || c.req.query('isDirect') === 'true' || extensions.some((suffix) => c.req.path.endsWith(suffix))) {
       const { OFF_LOAD } = env(c) as { OFF_LOAD: string }
       const offloadUrl = OFF_LOAD || 'https://offload.tnktok.com'
 
-      if (videoInfo.video.duration > 0) {
-        if ((hq || 'false').toLowerCase() == 'true' || url.hostname.includes('hq.')) {
-          return new Response('', {
-            status: 302,
-            headers: {
-              Location: offloadUrl + '/generate/video/' + videoInfo.id + '?hq=true'
-            }
-          })
-        } else {
-          return new Response('', {
-            status: 302,
-            headers: {
-              Location: offloadUrl + '/generate/video/' + videoInfo.id
-            }
-          })
-        }
-      } else {
-        return new Response('', {
-          status: 302,
-          headers: {
-            Location: offloadUrl + '/generate/image/' + videoInfo.id
-          }
-        })
-      }
-    } else {
-      if (videoInfo.isContentClassified === true) {
-        const responseContent = await WarningResponse('Sensitive Content', 'the video being age-restricted', c)
-        return returnHTMLResponse(responseContent, 200)
-      }
-
-      const responseContent = await VideoResponse(
-        videoInfo,
-        (addDesc || 'false').toLowerCase() == 'true' || url.hostname.includes('a.'),
-        (hq || 'false').toLowerCase() == 'true' || url.hostname.includes('hq.'),
-        c
-      )
-      return returnHTMLResponse(responseContent)
+      if (videoInfo.video.duration > 0) return c.redirect(offloadUrl + '/generate/video/' + videoInfo.id + (isHq ? '?hq=true' : ''))
+      return c.redirect(offloadUrl + '/generate/image/' + videoInfo.id)
     }
+
+    if (videoInfo.isContentClassified === true) {
+      return returnHTMLResponse(await WarningResponse('Sensitive Content', 'the video being age-restricted', c), 200)
+    }
+
+    const showDesc = (addDesc || 'false').toLowerCase() == 'true' || url.hostname.includes('a.')
+    return returnHTMLResponse(await VideoResponse(videoInfo, showDesc, isHq, c))
   } catch (e) {
-    const responseContent = await ErrorResponse((e as Error).message, c)
-    return returnHTMLResponse(responseContent, 500)
+    return errorPage(c, (e as Error).message)
   }
 }
 
 async function handleLive(c: any): Promise<Response> {
-  const { author, videoId } = c.req.param()
-  let authorName = author
-
-  if (!BOT_REGEX.test(c.req.header('User-Agent') || '')) {
-    const url = new URL(c.req.url)
-    url.search = ''
-
-    return new Response('', {
-      status: 302,
-      headers: {
-        Location: 'https://www.tiktok.com' + url.pathname
-      }
-    })
-  }
-
-  if (!author && !awemeIdPattern.test(videoId)) {
-    const url = await grabAwemeId(videoId)
-    const match = url.pathname.match(awemeLinkPattern)
-
-    if (match) {
-      authorName = match[1]
-    } else {
-      const responseContent = await ErrorResponse('Invalid live ID', c)
-      return returnHTMLResponse(responseContent, 400)
-    }
-  }
-
-  authorName = authorName.startsWith('@') ? authorName.substring(1) : authorName
-
-  return processLive(c, authorName)
+  if (!isBot(c)) return redirectToTikTok(c)
+  return processLive(c, c.req.param('author').replace(/^@/, ''))
 }
 
 async function processLive(c: any, authorName: string): Promise<Response> {
   try {
     const liveData = await scrapeLiveData(authorName)
+    if (liveData instanceof Error) return errorPage(c, liveData.message)
 
-    if (liveData instanceof Error) {
-      const responseContent = await ErrorResponse((liveData as Error).message, c)
-      return returnHTMLResponse(responseContent, 500)
-    }
-
-    const responseContent = await LiveResponse(liveData, c)
-    return returnHTMLResponse(responseContent)
+    return returnHTMLResponse(await LiveResponse(liveData, c))
   } catch (e) {
-    const responseContent = await ErrorResponse((e as Error).message, c)
-    return returnHTMLResponse(responseContent, 500)
+    return errorPage(c, (e as Error).message)
   }
 }
 
 app.get('/metrics', serveMetrics)
 
-app.get(
-  '/api/v1/statuses/:videoId',
-  withRoutePattern('/api/v1/statuses/:videoId', async (c) => respondAlternative(c))
-)
-app.get(
-  '/users/:username/statuses/:videoId',
-  withRoutePattern('/users/:username/statuses/:videoId', async (c) => respondAlternative(c))
-)
+for (const path of ['/api/v1/statuses/:videoId', '/users/:username/statuses/:videoId']) {
+  app.get(path, withRoutePattern(path, respondAlternative))
+}
 
 app.route('/generate', generate)
 
