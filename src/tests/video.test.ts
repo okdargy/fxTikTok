@@ -1,4 +1,7 @@
+import { readFileSync } from 'fs'
 import app from '@/index'
+import { scrapeVideoData } from '@/services/tiktok'
+import { trimVideoDetail } from '@/util/trimData'
 
 describe('GET /@i/video/:videoId', () => {
   it('should return 200', async () => {
@@ -91,6 +94,24 @@ describe('GET /@i/video/:videoId (unavailable)', () => {
     })
 
     expect(res.status).toBe(404)
+  })
+})
+
+describe('scrapeVideoData (fresh scrape)', () => {
+  afterEach(() => jest.restoreAllMocks())
+
+  it('returns the same trimmed data that gets cached', async () => {
+    const detail = JSON.parse(readFileSync(`${__dirname}/fixtures/video-detail.json`, 'utf8'))
+    const data = { __DEFAULT_SCOPE__: { 'webapp.video-detail': detail } }
+    jest
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(
+        new Response(`<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__" type="application/json">${JSON.stringify(data)}</script>`)
+      )
+
+    expect(await scrapeVideoData(detail.itemInfo.itemStruct.id)).toEqual(
+      JSON.parse(JSON.stringify(trimVideoDetail(detail))).itemInfo.itemStruct
+    )
   })
 })
 

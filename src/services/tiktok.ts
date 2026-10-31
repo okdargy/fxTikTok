@@ -1,6 +1,7 @@
 import { WebJSONResponse, ItemStruct, WebappUserDetail, WebappVideoDetail, UserInfo, DetailUser } from '../types/Web'
 import { LiveWebJSONResponse, LiveRoom } from '../types/Live'
 import Cookie from '../util/cookieHelper'
+import { trimPfp, trimUserDetail, trimVideoDetail } from '../util/trimData'
 import cookieParser from 'set-cookie-parser'
 import { createClient } from 'redis'
 
@@ -156,13 +157,16 @@ export async function scrapePageData(
     const json: WebJSONResponse = JSON.parse(resJson)
 
     const scopeData = json['__DEFAULT_SCOPE__'][scope]
+    if (!scopeData) return new Error(`Could not find ${scopeType} data`)
 
-    if (!scopeData) {
-      return new Error(`Could not find ${scopeType} data`)
-    } else if (scopeData.statusCode === 10204) {
+    const trimmed = JSON.stringify(
+      scopeType == 'video' ? trimVideoDetail(scopeData as WebappVideoDetail) : trimUserDetail(scopeData as WebappUserDetail)
+    )
+
+    if (scopeData.statusCode === 10204) {
       if (redis) {
         try {
-          await redis.setEx(cacheKey, NOT_FOUND_TTL, JSON.stringify(scopeData))
+          await redis.setEx(cacheKey, NOT_FOUND_TTL, trimmed)
         } catch (redisErr) {
           console.error('Redis set error:', redisErr)
         }
@@ -172,15 +176,16 @@ export async function scrapePageData(
     } else {
       if (redis) {
         try {
-          await redis.setEx(cacheKey, REDIS_TTL, JSON.stringify(scopeData))
+          await redis.setEx(cacheKey, REDIS_TTL, trimmed)
 
           if (scopeType == 'video') {
             const videoData = scopeData as WebappVideoDetail
             const user = videoData?.itemInfo?.itemStruct?.author
 
             if (user?.id && user?.uniqueId) {
-              await redis.setEx(`tiktok:pfp:${user.id}`, REDIS_TTL, JSON.stringify(user))
-              await redis.setEx(`tiktok:pfp:${user.uniqueId}`, REDIS_TTL, JSON.stringify(user))
+              const pfp = JSON.stringify(trimPfp(user))
+              await redis.setEx(`tiktok:pfp:${user.id}`, REDIS_TTL, pfp)
+              await redis.setEx(`tiktok:pfp:${user.uniqueId}`, REDIS_TTL, pfp)
             }
           } else if (scopeType == 'user') {
             const userData = scopeData as WebappUserDetail
@@ -189,15 +194,16 @@ export async function scrapePageData(
               const user = userData.userInfo.user
 
               if (user?.id && user?.uniqueId) {
-                await redis.setEx(`tiktok:pfp:${user.id}`, REDIS_TTL, JSON.stringify(user))
-                await redis.setEx(`tiktok:pfp:${user.uniqueId}`, REDIS_TTL, JSON.stringify(user))
+                const pfp = JSON.stringify(trimPfp(user))
+                await redis.setEx(`tiktok:pfp:${user.id}`, REDIS_TTL, pfp)
+                await redis.setEx(`tiktok:pfp:${user.uniqueId}`, REDIS_TTL, pfp)
 
                 const idKey = `tiktok:user:${user.id}`
 
                 if (idKey !== cacheKey) {
-                  await redis.setEx(idKey, REDIS_TTL, JSON.stringify(scopeData))
+                  await redis.setEx(idKey, REDIS_TTL, trimmed)
                 } else {
-                  await redis.setEx(`tiktok:user:${user.uniqueId}`, REDIS_TTL, JSON.stringify(scopeData))
+                  await redis.setEx(`tiktok:user:${user.uniqueId}`, REDIS_TTL, trimmed)
                 }
               }
             }
@@ -208,7 +214,7 @@ export async function scrapePageData(
       }
     }
 
-    return scopeData
+    return JSON.parse(trimmed)
   } catch (err) {
     return new Error(`Could not parse ${scopeType} data`)
   }
