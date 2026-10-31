@@ -22,6 +22,9 @@ export default async function generateActivity(param: string, c: Context) {
       error: videoInfo.message
     }
 
+  // age-restricted videos come back as a stub without author or video data
+  if (videoInfo.isContentClassified) return { error: 'Age-restricted video' }
+
   let media = []
   const totalImages = videoInfo.imagePost?.images?.length || 0
   const duration = videoInfo.video.duration

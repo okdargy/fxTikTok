@@ -55,3 +55,12 @@ describe('status attachment duration', () => {
     for (const media of body.media_attachments) expect(media.meta.original).not.toHaveProperty('duration')
   })
 })
+
+describe('age-restricted status', () => {
+  it('returns an error instead of crashing on the author-less stub', async () => {
+    scrape.mockResolvedValue({ id: '7000000000000000000', isContentClassified: true, video: {} } as unknown as ItemStruct)
+    const response = await app.request('/')
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ error: 'Age-restricted video' })
+  })
+})
