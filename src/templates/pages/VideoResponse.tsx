@@ -14,7 +14,6 @@ export function VideoResponse(data: ItemStruct, addDesc: boolean, hq: boolean, c
   const videoUrl = offloadUrl + '/generate/video/' + data.id + '.mp4' + (hq ? '?hq=true' : '')
   let videoMeta: { name: string; content: string }[] = []
 
-  // getting media
   if (data.video.duration !== 0) {
     videoMeta = [
       {
@@ -126,19 +125,19 @@ export function VideoResponse(data: ItemStruct, addDesc: boolean, hq: boolean, c
           },
           {
             name: 'theme-color',
-            content: '#ff0050' // TikTok's theme color
+            content: '#ff0050'
           },
           {
             name: 'twitter:site',
-            content: `@${data.author.uniqueId}` // @username
+            content: `@${data.author.uniqueId}`
           },
           {
             name: 'twitter:creator',
-            content: `@${data.author.uniqueId}` // @username
+            content: `@${data.author.uniqueId}`
           },
           {
             name: 'twitter:title',
-            content: `${data.author.nickname} (@${data.author.uniqueId})` // Nickname (@username)
+            content: `${data.author.nickname} (@${data.author.uniqueId})`
           },
           {
             name: 'og:url',

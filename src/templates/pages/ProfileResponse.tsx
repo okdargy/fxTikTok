@@ -23,19 +23,19 @@ export function ProfileResponse(data: UserInfo, c: Context): JSX.Element {
           },
           {
             name: 'theme-color',
-            content: '#ff0050' // TikTok's theme color
+            content: '#ff0050'
           },
           {
             name: 'twitter:site',
-            content: `@${data.user.uniqueId}` // @username
+            content: `@${data.user.uniqueId}`
           },
           {
             name: 'twitter:creator',
-            content: `@${data.user.uniqueId}` // @username
+            content: `@${data.user.uniqueId}`
           },
           {
             name: 'twitter:title',
-            content: `${data.user.nickname} (@${data.user.uniqueId})` // Nickname (@username)
+            content: `${data.user.nickname} (@${data.user.uniqueId})`
           },
           {
             name: 'og:url',

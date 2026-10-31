@@ -15,7 +15,7 @@ export function formatNumber(value: string | number): string {
 }
 
 export function formatTime(time: number): string {
-  const timeElapsed = Date.now() - time * 1000 // time elapsed in milliseconds
+  const timeElapsed = Date.now() - time * 1000
   const minutes = Math.floor(timeElapsed / 60000)
   const hours = Math.floor(minutes / 60)
   const days = Math.floor(hours / 24)

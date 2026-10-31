@@ -34,15 +34,15 @@ export function LiveResponse(data: LiveRoom, c: Context): JSX.Element {
           },
           {
             name: 'twitter:site',
-            content: `@${data.liveRoomUserInfo.user.uniqueId}` // @username
+            content: `@${data.liveRoomUserInfo.user.uniqueId}`
           },
           {
             name: 'twitter:creator',
-            content: `@${data.liveRoomUserInfo.user.uniqueId}` // @username
+            content: `@${data.liveRoomUserInfo.user.uniqueId}`
           },
           {
             name: 'twitter:title',
-            content: `${data.liveRoomUserInfo.user.nickname} (@${data.liveRoomUserInfo.user.nickname})` // Nickname (@username)
+            content: `${data.liveRoomUserInfo.user.nickname} (@${data.liveRoomUserInfo.user.nickname})`
           },
           {
             name: 'og:url',

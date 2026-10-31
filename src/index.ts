@@ -35,11 +35,8 @@ async function handleShort(c: any): Promise<Response> {
   let id = videoId.split('.')[0] // for .mp4, .webp, etc.
 
   const link = await grabAwemeId(id)
-
-  // Clean any tracking parameters
   link.search = ''
 
-  // If the user agent is a bot, redirect to the TikTok page
   if (!BOT_REGEX.test(c.req.header('User-Agent') || '')) {
     return new Response('', {
       status: 302,
@@ -49,7 +46,6 @@ async function handleShort(c: any): Promise<Response> {
     })
   }
 
-  // Extract the actual aweme ID from the resolved link
   let resolvedId = id
   if (link.pathname.includes('/video') || link.pathname.includes('/photo')) {
     const match = link.pathname.match(awemeLinkPattern)
@@ -67,11 +63,8 @@ async function handleShort(c: any): Promise<Response> {
 }
 
 async function handleProfile(author: string, c: any): Promise<Response> {
-  // If the user agent is a bot, redirect to the TikTok page
   if (!BOT_REGEX.test(c.req.header('User-Agent') || '')) {
     const url = new URL(c.req.url)
-
-    // Remove tracking parameters
     url.search = ''
 
     return new Response('', {
@@ -95,13 +88,10 @@ async function handleProfile(author: string, c: any): Promise<Response> {
 
 async function handleVideo(c: any): Promise<Response> {
   const { videoId } = c.req.param()
-  let id = videoId.split('.')[0] // for .mp4, .webp, etc.
+  let id = videoId.split('.')[0]
 
-  // If the user agent is a bot, redirect to the TikTok page
   if (!BOT_REGEX.test(c.req.header('User-Agent') || '')) {
     const url = new URL(c.req.url)
-
-    // Remove tracking parameters
     url.search = ''
 
     return new Response('', {
@@ -204,11 +194,8 @@ async function handleLive(c: any): Promise<Response> {
   const { author, videoId } = c.req.param()
   let authorName = author
 
-  // If the user agent is a bot, redirect to the TikTok page
   if (!BOT_REGEX.test(c.req.header('User-Agent') || '')) {
     const url = new URL(c.req.url)
-
-    // Remove tracking parameters
     url.search = ''
 
     return new Response('', {

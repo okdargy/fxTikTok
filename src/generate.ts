@@ -58,8 +58,6 @@ generate.get(
 
       let playUrl: string | undefined
 
-      // Helper to get the standard play URL
-      // standard play URL is always h264 and available for all videos
       const getFallbackUrl = () => data.video?.PlayAddrStruct?.UrlList?.find((u: string) => u.includes('/aweme/v1/play/'))
 
       if (isTelegramBot) {
@@ -71,7 +69,6 @@ generate.get(
             return dataSize > 0 && dataSize <= MAX_SIZE && !b.CodecType.includes('h265')
           }) || []
 
-        // Find the largest available video within size limits
         const largestVideo = videosUnder20MB.sort(
           (a, b) => parseInt(b.PlayAddr?.DataSize || '0') - parseInt(a.PlayAddr?.DataSize || '0')
         )[0]
@@ -88,8 +85,10 @@ generate.get(
         playUrl = getFallbackUrl()
       }
 
-      // For some reason, if you have any TikTok cookies set (meaning logged in), the normal CDN url redirects to a tiktok.com signed video.
-      // To avoid this, we fetch the play URL and follow redirects manually to always get a direct video link.
+      /*
+        For some reason, if you have any TikTok cookies set (meaning logged in), the normal CDN url redirects to a tiktok.com signed video.
+        To avoid this, we fetch the play URL and follow redirects manually to always get a direct video link.
+      */
       if (playUrl) {
         const response = await fetch(playUrl, {
           headers: {
@@ -158,7 +157,7 @@ generate.get(
     if (!awemeIdPattern.test(videoId)) return new Response('Invalid video ID', { status: 400 })
 
     if (isNaN(Number(imageCount)) || parseInt(imageCount) < 1) return new Response('Invalid image count', { status: 400 })
-    const imageIndex = parseInt(imageCount) - 1 // 0-indexed
+    const imageIndex = parseInt(imageCount) - 1
 
     try {
       const data = await scrapeVideoData(videoId)
