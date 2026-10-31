@@ -4,6 +4,7 @@ import Cookie from '../util/cookieHelper'
 import { trimPfp, trimUserDetail, trimVideoDetail } from '../util/trimData'
 import cookieParser from 'set-cookie-parser'
 import { createClient } from 'redis'
+import { cacheLookupsTotal } from '../metrics'
 
 const cookie = new Cookie([])
 
@@ -83,6 +84,7 @@ export async function grabAwemeId(videoId: string): Promise<URL> {
   if (redis) {
     try {
       const cached = await redis.get(cacheKey)
+      cacheLookupsTotal.inc({ kind: 'aweme', result: cached ? 'hit' : 'miss' })
       if (cached) {
         return new URL(cached)
       }
@@ -143,6 +145,7 @@ export async function scrapePageData(
     if (redis) {
       try {
         const cached = await redis.get(cacheKey)
+        cacheLookupsTotal.inc({ kind: scopeType, result: cached ? 'hit' : 'miss' })
         if (cached) {
           return JSON.parse(cached)
         }
@@ -240,6 +243,7 @@ export async function scrapePfpData(username: string): Promise<DetailUser | Erro
     const cacheKey = `tiktok:pfp:${username}`
     try {
       const cached = await redis.get(cacheKey)
+      cacheLookupsTotal.inc({ kind: 'pfp', result: cached ? 'hit' : 'miss' })
       if (cached) {
         return JSON.parse(cached)
       }

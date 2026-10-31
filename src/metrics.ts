@@ -4,7 +4,6 @@ const REQUEST_DURATION_BUCKETS = [0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]
 
 const metricsRegistry = new Registry()
 
-
 const requestsTotal = new Counter({
   name: 'fxtiktok_requests_total',
   help: 'Total HTTP requests grouped by route pattern, method, and status class.',
@@ -24,6 +23,13 @@ const unhandledExceptionsTotal = new Counter({
   name: 'fxtiktok_unhandled_exceptions_total',
   help: 'Total uncaught exceptions grouped by route pattern, method, and exception type.',
   labelNames: ['route', 'method', 'exception_type'],
+  registers: [metricsRegistry]
+})
+
+export const cacheLookupsTotal = new Counter({
+  name: 'fxtiktok_cache_lookups_total',
+  help: 'Redis cache lookups grouped by cached data kind and hit/miss.',
+  labelNames: ['kind', 'result'],
   registers: [metricsRegistry]
 })
 

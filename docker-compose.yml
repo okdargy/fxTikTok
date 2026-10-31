@@ -37,6 +37,7 @@ services:
     command: ["bun", "run", "src/offload.ts"]
     environment:
       PORT: "8787"
+      METRICS_ENABLED: "${METRICS_ENABLED:-false}"
       REDIS_ENABLED: "${REDIS_ENABLED:-false}"
       REDIS_URL: "${REDIS_URL:-redis://redis:6379}"
     expose:

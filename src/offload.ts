@@ -1,6 +1,6 @@
 import { Context, Hono } from 'hono'
 import { generate, respondAlternative } from './generate'
-import generateActivity from './util/generateActivity'
+import { metricsMiddleware, serveMetrics, withRoutePattern } from './metrics'
 
 const app = new Hono()
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 8787
@@ -20,27 +20,34 @@ export const logMiddleware = () => async (c: Context, next: () => Promise<void>)
   console.log(`[${new Date().toISOString()}] ${c.req.method} ${url} ${status} ${duration}ms - User-Agent: ${userAgent}`)
 }
 
+app.use('*', metricsMiddleware())
 app.use('*', logMiddleware())
 
-app.get('/', () => {
-  return new Response(
-    JSON.stringify({
-      message: 'fxTikTok offload server is running!',
-      github: 'https://github.com/okdargy/fxTikTok',
-      uptime: Date.now() - firstStart
-    }),
-    {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Cache-Control': 'public, max-age=3600'
+app.get(
+  '/',
+  withRoutePattern('/', () => {
+    return new Response(
+      JSON.stringify({
+        message: 'fxTikTok offload server is running!',
+        github: 'https://github.com/okdargy/fxTikTok',
+        uptime: Date.now() - firstStart
+      }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'public, max-age=3600'
+        }
       }
-    }
-  )
-})
+    )
+  })
+)
 
-app.get('/api/v1/statuses/:videoId', async (c) => respondAlternative(c))
-app.get('/users/:username/statuses/:videoId', async (c) => respondAlternative(c))
+app.get('/metrics', serveMetrics)
+
+for (const path of ['/api/v1/statuses/:videoId', '/users/:username/statuses/:videoId']) {
+  app.get(path, withRoutePattern(path, respondAlternative))
+}
 
 app.route('/generate', generate)
 
