@@ -4,7 +4,7 @@ export const generate = new Hono()
 import generateAlternate from './util/generateAlternate'
 import generateActivity from './util/generateActivity'
 import { withRoutePattern } from './metrics'
-import { NotFoundError, scrapePfpData, scrapeVideoData } from './services/tiktok'
+import { NotFoundError, resolvePlayUrl, scrapePfpData, scrapeVideoData } from './services/tiktok'
 
 export const awemeIdPattern = /^\d{1,19}$/
 export const awemeLinkPattern = /\/@?([\w\d_.]*)\/(video|photo|live)\/?(\d{19})?/
@@ -90,20 +90,8 @@ generate.get(
         To avoid this, we fetch the play URL and follow redirects manually to always get a direct video link.
       */
       if (playUrl) {
-        const response = await fetch(playUrl, {
-          headers: {
-            'User-Agent':
-              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
-            Accept: '*/*'
-          },
-          redirect: 'manual'
-        })
-
-        if (response.status === 302 || response.status === 301) {
-          return c.redirect(response.headers.get('Location') || playUrl)
-        } else {
-          return response
-        }
+        const resolved = await resolvePlayUrl(playUrl)
+        return typeof resolved === 'string' ? c.redirect(resolved) : resolved
       } else {
         throw new NotFoundError('Could not find an aweme play URL')
       }
@@ -216,7 +204,7 @@ generate.get(
         if (data.message === 'Restricted') return c.redirect('https://pldrs.tnktok.com/restricted.png')
 
         return new Response((data as Error).message, {
-          status: 500,
+          status: data instanceof NotFoundError ? 404 : 500,
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate'
           }
