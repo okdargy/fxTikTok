@@ -1,17 +1,15 @@
 import MetaHelper from '../../util/metaHelper'
 import { ItemStruct } from '../../types/Web'
 import { Context } from 'hono'
-import { env } from 'hono/adapter'
 import { IMAGES_PER_PAGE } from '../../util/generateActivity'
 
 export function VideoResponse(data: ItemStruct, addDesc: boolean, hq: boolean, c: Context): JSX.Element {
-  const { OFF_LOAD } = env(c) as { OFF_LOAD: string }
-  const offloadUrl = OFF_LOAD || 'https://offload.tnktok.com'
+  const baseUrl = c.get('baseUrl')
   const pageParam = parseInt(c.req.query('page') || '1')
   const page = Number.isNaN(pageParam) || pageParam < 1 ? 1 : pageParam
   let activityPage = 1
 
-  const videoUrl = offloadUrl + '/generate/video/' + data.id + '.mp4' + (hq ? '?hq=true' : '')
+  const videoUrl = baseUrl + '/generate/video/' + data.id + '.mp4' + (hq ? '?hq=true' : '')
   let videoMeta: { name: string; content: string }[] = []
 
   if (data.video.duration !== 0) {
@@ -84,7 +82,7 @@ export function VideoResponse(data: ItemStruct, addDesc: boolean, hq: boolean, c
       return [
         {
           name: 'og:image',
-          content: offloadUrl + '/generate/image/' + data.id + '?index=' + imageIndex
+          content: baseUrl + '/generate/image/' + data.id + '?index=' + imageIndex
         },
         {
           name: 'og:image:type',

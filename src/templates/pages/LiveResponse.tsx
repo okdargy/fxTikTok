@@ -2,12 +2,8 @@ import { Context } from 'hono'
 import MetaHelper from '@/util/metaHelper'
 import { LiveRoom } from '@/types/Live'
 import { formatNumber, formatTime } from '@/util/format'
-import { env } from 'hono/adapter'
 
 export function LiveResponse(data: LiveRoom, c: Context): JSX.Element {
-  const { OFF_LOAD } = env(c) as { OFF_LOAD: string }
-  const offloadUrl = OFF_LOAD || 'https://offload.tnktok.com'
-
   let title = ''
 
   title += `👀 ${formatNumber(String(data.liveRoomUserInfo.liveRoom.liveRoomStats.userCount))}  `
@@ -54,7 +50,7 @@ export function LiveResponse(data: LiveRoom, c: Context): JSX.Element {
           },
           {
             name: 'og:image',
-            content: offloadUrl + '/generate/pfp/' + data.liveRoomUserInfo.user.id
+            content: c.get('baseUrl') + '/generate/pfp/' + data.liveRoomUserInfo.user.id
           },
           {
             name: 'og:image:type',

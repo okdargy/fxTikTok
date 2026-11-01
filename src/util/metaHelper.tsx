@@ -1,5 +1,4 @@
 import { Context } from 'hono'
-import { env } from 'hono/adapter'
 import { buildActivityId, normalizePage } from './activityId'
 
 export default function MetaHelper(
@@ -16,14 +15,12 @@ export default function MetaHelper(
   addDesc?: boolean,
   activityPage?: number
 ): JSX.Element {
-  const { OFF_LOAD } = env(c) as { OFF_LOAD: string }
+  const baseUrl = c.get('baseUrl')
   const page = normalizePage(activityPage || c.req.query('page'))
   const activityId = awemeId ? buildActivityId(awemeId, { hq, addDesc, page }) : null
-  const activityUrl = activityId
-    ? new URL((OFF_LOAD || 'https://offload.tnktok.com') + '/users/' + 'username' + '/statuses/' + activityId)
-    : null
+  const activityUrl = activityId ? new URL(baseUrl + '/users/' + 'username' + '/statuses/' + activityId) : null
 
-  let alternateUrl = new URL((OFF_LOAD || 'https://offload.tnktok.com') + '/generate/alternate')
+  let alternateUrl = new URL(baseUrl + '/generate/alternate')
 
   if (alternate) {
     for (const key in alternate) {

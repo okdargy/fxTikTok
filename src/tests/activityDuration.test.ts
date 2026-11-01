@@ -2,11 +2,13 @@ import { Hono } from 'hono'
 import * as tiktok from '@/services/tiktok'
 import type { ItemStruct } from '@/types/Web'
 import generateActivity from '@/util/generateActivity'
+import { baseUrlMiddleware } from '@/util/baseUrl'
 
 const scrape = jest.spyOn(tiktok, 'scrapeVideoData')
 afterAll(() => scrape.mockRestore())
 
 const app = new Hono()
+app.use('*', baseUrlMiddleware())
 app.get('/', async (c) => c.json(await generateActivity('7000000000000000000', c)))
 
 async function status(duration: unknown, photo = false) {

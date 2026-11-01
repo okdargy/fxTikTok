@@ -1,13 +1,9 @@
 import MetaHelper from '../../util/metaHelper'
 import { UserInfo } from '../../types/Web'
 import { Context } from 'hono'
-import { env } from 'hono/adapter'
 import { formatNumber } from '@/util/format'
 
 export function ProfileResponse(data: UserInfo, c: Context): JSX.Element {
-  const { OFF_LOAD } = env(c) as { OFF_LOAD: string }
-  const offloadUrl = OFF_LOAD || 'https://offload.tnktok.com'
-
   return (
     <>
       {MetaHelper(
@@ -43,7 +39,7 @@ export function ProfileResponse(data: UserInfo, c: Context): JSX.Element {
           },
           {
             name: 'og:image',
-            content: offloadUrl + '/generate/pfp/' + data.user.id
+            content: c.get('baseUrl') + '/generate/pfp/' + data.user.id
           },
           {
             name: 'og:image:type',

@@ -2,13 +2,24 @@ import { Context, Hono } from 'hono'
 import { grabAwemeId, NotFoundError, scrapeLiveData, scrapeProfileData, scrapeVideoData } from './services/tiktok'
 import { VideoResponse, ErrorResponse, LiveResponse, WarningResponse } from './templates'
 import { returnHTMLResponse } from './util/responseHelper'
-import { env } from 'hono/adapter'
 import { generate, respondAlternative, awemeIdPattern, awemeLinkPattern } from './generate'
 import { ProfileResponse } from './templates/pages/ProfileResponse'
 import { metricsMiddleware, serveMetrics, withRoutePattern } from './metrics'
+import { baseUrlMiddleware } from './util/baseUrl'
 
 const app = new Hono()
+
+const logMiddleware = () => async (c: Context, next: () => Promise<void>) => {
+  const startTime = Date.now()
+  await next()
+  console.log(
+    `[${new Date().toISOString()}] ${c.req.method} ${c.req.url} ${c.res.status} ${Date.now() - startTime}ms - User-Agent: ${c.req.header('User-Agent') || 'Unknown'}`
+  )
+}
+
 app.use('*', metricsMiddleware())
+app.use('*', logMiddleware())
+app.use('*', baseUrlMiddleware())
 
 // Credit: https://github.com/FixTweet/FxTwitter/blob/main/src/constants.ts#L59
 const BOT_REGEX =
@@ -81,11 +92,9 @@ async function processVideo(c: any, id: string): Promise<Response> {
     const extensions = ['mp4', 'png', 'jpg', 'jpeg', 'webp', 'webm']
 
     if (url.hostname.includes('d.') || c.req.query('isDirect') === 'true' || extensions.some((suffix) => c.req.path.endsWith(suffix))) {
-      const { OFF_LOAD } = env(c) as { OFF_LOAD: string }
-      const offloadUrl = OFF_LOAD || 'https://offload.tnktok.com'
-
-      if (videoInfo.video.duration > 0) return c.redirect(offloadUrl + '/generate/video/' + videoInfo.id + (isHq ? '?hq=true' : ''))
-      return c.redirect(offloadUrl + '/generate/image/' + videoInfo.id)
+      const baseUrl = c.get('baseUrl')
+      if (videoInfo.video.duration > 0) return c.redirect(baseUrl + '/generate/video/' + videoInfo.id + (isHq ? '?hq=true' : ''))
+      return c.redirect(baseUrl + '/generate/image/' + videoInfo.id)
     }
 
     if (videoInfo.isContentClassified === true) {

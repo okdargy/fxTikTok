@@ -1,14 +1,12 @@
 import { scrapeVideoData } from '@/services/tiktok'
 import { Context } from 'hono'
 import { formatNumber } from './format'
-import { env } from 'hono/adapter'
 import { buildActivityId, parseActivityId } from './activityId'
 
 export const IMAGES_PER_PAGE = 4
 
 export default async function generateActivity(param: string, c: Context) {
-  const { OFF_LOAD } = env(c) as { OFF_LOAD: string }
-  const offloadUrl = OFF_LOAD || 'https://offload.tnktok.com'
+  const baseUrl = c.get('baseUrl')
 
   const activity = parseActivityId(param, c.req.query('page'))
   const videoId = activity.videoId
@@ -74,8 +72,8 @@ export default async function generateActivity(param: string, c: Context) {
     media.push({
       id: videoId + '-video',
       type: 'video',
-      url: offloadUrl + '/generate/video/' + videoId + (hq ? '?hq=true' : ''),
-      preview_url: offloadUrl + '/generate/cover/' + videoId,
+      url: baseUrl + '/generate/video/' + videoId + (hq ? '?hq=true' : ''),
+      preview_url: baseUrl + '/generate/cover/' + videoId,
       remote_url: null,
       preview_remote_url: null,
       text_url: null,
@@ -101,8 +99,8 @@ export default async function generateActivity(param: string, c: Context) {
       media.push({
         id: videoId + '-image-' + i,
         type: 'image',
-        url: offloadUrl + '/generate/image/' + videoId + '/' + (i + 1),
-        preview_url: offloadUrl + '/generate/image/' + videoId + '/' + (i + 1) + '?preview=true',
+        url: baseUrl + '/generate/image/' + videoId + '/' + (i + 1),
+        preview_url: baseUrl + '/generate/image/' + videoId + '/' + (i + 1) + '?preview=true',
         remote_url: null,
         preview_remote_url: null,
         text_url: null,
@@ -156,8 +154,8 @@ export default async function generateActivity(param: string, c: Context) {
       discoverable: true,
       indexable: false,
       group: false,
-      avatar: offloadUrl + '/generate/pfp/' + videoInfo.author.id,
-      avatar_static: offloadUrl + '/generate/pfp/' + videoInfo.author.id,
+      avatar: baseUrl + '/generate/pfp/' + videoInfo.author.id,
+      avatar_static: baseUrl + '/generate/pfp/' + videoInfo.author.id,
       followers_count: videoInfo.stats.followerCount,
       following_count: videoInfo.stats.followingCount,
       header: null,

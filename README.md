@@ -85,19 +85,21 @@ The following embed services are not listed due to being unmaintained or simply 
 
 ## 💻 Selfhosting
 
-By default, when setting up a new fxTikTok instance, the default offload server is `offload.tnktok.com`.
-To setup your own, just compile and run [`offload.ts`](/src/offload.ts) which will start on port **8787**.
+fxTikTok is one server: `bun run start` (or `docker compose up`) serves the embeds and the media/activity routes they link to.
+Media and activity links (`/generate/...`) point back at whatever domain the request came in on. Set `OFF_LOAD` only if you want them served by a separate instance.
 
 ```bash
 # Install all necessary dependencies
 pnpm install
-# Start your server
-bun run src/offload.ts
+# Start your server (port 3000, or $PORT)
+bun run start
 ```
+
+If you'd rather run the embeds on Cloudflare Workers, run the server above as your offload and point the Worker at it:
 
 > I recommend configuring this to your own domain alongside a reverse proxy like [nginx](https://nginx.org) and on top of Cloudflare with protection on.
 
-Next, deploy your Worker with the button below and follow the instructions.
+Deploy your Worker with the button below and follow the instructions.
 
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/okdargy/fxtiktok)
 

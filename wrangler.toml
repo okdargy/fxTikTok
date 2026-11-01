@@ -3,17 +3,17 @@ compatibility_date = "2024-09-23"
 main = "src/index.ts"
 compatibility_flags = ["nodejs_compat"]
 
-vars = { WORKER_ENV = "production", OFF_LOAD = "https://offload.tnktok.com" }
+vars = { WORKER_ENV = "production" }
 
 [alias]
 "redis" = "./src/shims/redis-shim.mjs"
 
 [env.staging]
 name = "fxtiktok-rewrite-dev"
-vars = { WORKER_ENV = "staging", OFF_LOAD = "https://fxtiktok-rewrite-dev.dargy.workers.dev" }
+vars = { WORKER_ENV = "staging" }
 
 [observability.logs]
 enabled = true
 
 [env.local]
-vars = { WORKER_ENV = "local", OFF_LOAD = "http://127.0.0.1:8787" }
+vars = { WORKER_ENV = "local" }

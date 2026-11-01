@@ -1,5 +1,4 @@
 import app from '@/index'
-import offload from '@/offload'
 
 describe('metrics routes', () => {
   const userAgent = 'Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)'
@@ -40,10 +39,10 @@ describe('metrics routes', () => {
     expect(text).not.toContain('route="/:videoId"')
   })
 
-  it('serves offload metrics with its route names and cache lookups', async () => {
-    await offload.fetch(new Request('http://localhost/generate/alternate'))
+  it('serves media route metrics and cache lookups', async () => {
+    await app.request('/generate/alternate')
 
-    const res = await offload.fetch(new Request('http://localhost/metrics'))
+    const res = await app.request('/metrics')
     expect(res.status).toBe(200)
     const text = await res.text()
     expect(text).toContain('route="/generate/alternate"')

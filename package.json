@@ -7,7 +7,6 @@
     "build": "wrangler build",
     "deploy": "wrangler deploy --minify src/index.ts",
     "deploy:staging": "wrangler deploy --env=staging --minify src/index.ts",
-    "offload": "bun run src/offload.ts",
     "test": "bun test",
     "prettier": "prettier . --write"
   },
